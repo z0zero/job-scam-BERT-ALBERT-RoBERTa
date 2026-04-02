@@ -1,0 +1,6 @@
+best_model/
+training_output/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+fake_job_postings.csv

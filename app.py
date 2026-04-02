@@ -7,7 +7,9 @@ Supports text input and image upload (with OCR via pytesseract).
 """
 
 import json
+import html
 import os
+import re
 
 import streamlit as st
 import torch
@@ -27,7 +29,7 @@ def load_model():
     """Load the saved model, tokenizer, and metadata."""
     tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_DIR)
-    model.train(False)  # Set model to evaluation mode
+    model.eval()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
@@ -39,8 +41,19 @@ def load_model():
     return model, tokenizer, device, meta
 
 
+def clean_text(text):
+    """Clean and normalize text — must match the notebook's preprocessing."""
+    text = html.unescape(text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"http\S+|www\.\S+", " ", text)
+    text = text.lower()
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
 def classify_text(text, model, tokenizer, device):
     """Classify a job posting text and return label + confidence."""
+    text = clean_text(text)
     encoding = tokenizer(
         text,
         max_length=MAX_LEN,
