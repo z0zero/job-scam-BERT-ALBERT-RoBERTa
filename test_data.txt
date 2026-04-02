@@ -1,0 +1,49 @@
+============================================================
+TEST DATA FOR JOB SCAM DETECTOR
+============================================================
+
+------------------------------------------------------------
+Test 1 — Expected Result: Legitimate Job
+------------------------------------------------------------
+
+Software Engineer - Backend (Mid-Level)
+
+Company: Acme Technologies Inc.
+Location: San Francisco, CA
+Employment Type: Full-time
+Salary Range: $120,000 - $150,000
+
+About Us:
+Acme Technologies is a Series B startup building cloud-native infrastructure tools for DevOps teams. Founded in 2019, we have 85 employees and are backed by Sequoia Capital.
+
+Description:
+We are looking for a backend software engineer to join our Platform team. You will design and implement RESTful APIs, optimize database queries, and collaborate with frontend engineers to ship features. You will participate in code reviews, on-call rotations, and sprint planning.
+
+Requirements:
+- Bachelor's degree in Computer Science or equivalent experience
+- 3-5 years of experience with Python or Go
+- Experience with PostgreSQL or MySQL
+- Familiarity with Docker and Kubernetes
+- Strong communication and teamwork skills
+
+Benefits:
+- Health, dental, and vision insurance
+- 401(k) with 4% company match
+- 20 days PTO plus company holidays
+- Annual learning and development budget of $2,000
+
+------------------------------------------------------------
+Test 2 — Expected Result: Potential Scam
+------------------------------------------------------------
+
+URGENT HIRING!!! Work From Home - Earn $8000/Week - No Experience Needed!!!
+
+We are looking for motivated individuals to join our amazing team! This is a once in a lifetime opportunity to make money from the comfort of your home. No resume required, no interview, start immediately!
+
+You will be processing payments and transferring funds to our international partners. All you need is a computer and a bank account. We provide all training FREE of charge.
+
+Requirements: NONE! Anyone can apply! Must be 18+.
+
+To get started, please send your full name, date of birth, home address, bank account number, and a copy of your government ID to our hiring manager via email. A small registration fee of $49.99 is required to reserve your spot as positions are filling up FAST.
+
+This is NOT a scam. We are a legitimate company registered in multiple countries. Act now before all spots are taken! Forward this to friends and family who also want to earn easy money!
