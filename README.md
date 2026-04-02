@@ -12,7 +12,8 @@ Trained on the [EMSCAD dataset](https://www.kaggle.com/datasets/shivamb/real-or-
 | **ALBERT** | **0.9892** | **0.9469** | **0.8231** | **0.8807** |
 | RoBERTa | 0.9847 | 0.8678 | 0.8077 | 0.8367 |
 
-**Best model: ALBERT** (albert-base-v2) — selected by highest F1 score.
+**Best model: ALBERT** (albert-base-v2) — selected by highest F1 score.  
+Download best_model: https://drive.google.com/file/d/1YZoeuoWHS_oLGF4bu6cW3ePcbaBGEdB2/view?usp=sharing
 
 ## Project Structure
 
