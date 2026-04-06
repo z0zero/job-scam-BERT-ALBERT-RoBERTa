@@ -37,13 +37,23 @@ venv\Scripts\activate           # Windows
 pip install -r requirements.txt
 ```
 
-### 2. Train the model
+### 2. Install Tesseract OCR (for image upload)
 
-Open `research_pipeline.ipynb` in Jupyter or Google Colab. Download the [EMSCAD dataset](https://www.kaggle.com/datasets/shivamb/real-or-fake-fake-jobposting-prediction) as `fake_job_postings.csv` and place it in the project root. Run all cells — the best model is exported to `./best_model/`.
+The image upload feature requires Tesseract OCR to extract text from screenshots.
+
+- **Windows**: Download and install from [UB-Mannheim/tesseract](https://github.com/UB-Mannheim/tesseract/wiki). The default install path (`C:\Program Files\Tesseract-OCR`) is auto-detected by the app.
+- **Linux**: `sudo apt install tesseract-ocr`
+- **Mac**: `brew install tesseract`
+
+> If you only use the text input feature, Tesseract is not required.
+
+### 3. Train the model
+
+Open `research_pipeline.ipynb` in Jupyter or Google Colab. Download the [EMSCAD dataset](https://www.kaggle.com/datasets/shivamb/real-or-fake-fake-jobposting-prediction) as `fake_job_postings.csv` and place it in the project root. Run all cells — the best model is exported to `best_model/`.
 
 A GPU is recommended (training takes ~2 hours on a Tesla T4).
 
-### 3. Run the web app
+### 4. Run the web app
 
 ```bash
 streamlit run app.py
