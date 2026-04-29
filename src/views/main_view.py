@@ -83,9 +83,27 @@ class MainView:
             on_analyze()
             
     @staticmethod
-    def render_classification_result(label, confidence):
-        if label == "Legitimate Job":
-            st.success(f"**{label}**")
-        else:
-            st.error(f"**{label}**")
-        st.metric(label="Confidence", value=f"{confidence * 100:.1f}%")
+    def render_classification_result(label, confidence, red_flags=None):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if label == "Legitimate Job":
+                st.success(f"**{label}**")
+            else:
+                st.error(f"**{label}**")
+            st.metric(label="Confidence", value=f"{confidence * 100:.1f}%")
+            
+        with col2:
+            num_flags = len(red_flags) if red_flags else 0
+            if num_flags > 0:
+                st.warning(f"**{num_flags} Red Flag(s) Detected**")
+            else:
+                st.info("**0 Red Flags**")
+                
+        if label != "Legitimate Job":
+            with st.expander("🔍 Analysis Indicators (Red Flags)", expanded=True):
+                if red_flags and len(red_flags) > 0:
+                    for flag in red_flags:
+                        st.write(f"- ⚠️ {flag}")
+                else:
+                    st.write("🤖 Model detected suspicious patterns from the training data, although no explicit heuristic red flags were matched.")

@@ -1,7 +1,9 @@
+import time
 import streamlit as st
 from src.models.classifier import ScamClassifier
 from src.models.preprocessor import clean_text
 from src.models.ocr_engine import extract_text_from_image
+from src.models.heuristics import check_red_flags
 from src.views.main_view import MainView
 
 @st.cache_resource
@@ -47,9 +49,27 @@ class AppController:
             if not text.strip():
                 self.view.render_warning("Please provide a job description to analyze.")
             else:
-                with st.spinner("Analyzing..."):
+                with st.status("Analyzing job description...", expanded=True) as status:
+                    st.write("⏳ Reading and parsing text...")
+                    time.sleep(0.5)
+                    
+                    st.write("⏳ Cleaning HTML tags and URLs...")
                     cleaned_text = clean_text(text)
+                    time.sleep(0.5)
+                    
+                    st.write("⏳ Tokenizing input for Transformer model...")
+                    time.sleep(0.7)
+                    
+                    st.write("⏳ Running sequence classification...")
                     label, confidence = classifier.classify_text(cleaned_text)
-                self.view.render_classification_result(label, confidence)
+                    time.sleep(1.0)
+                    
+                    st.write("⏳ Extracting heuristics & red flags...")
+                    red_flags = check_red_flags(text)
+                    time.sleep(0.5)
+                    
+                    status.update(label="✅ Analysis Complete!", state="complete", expanded=False)
+                    
+                self.view.render_classification_result(label, confidence, red_flags)
 
         self.view.render_result_section(on_analyze=handle_analyze)
