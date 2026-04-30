@@ -8,3 +8,5 @@ venv/
 *.log
 .claude/
 .worktrees/
+artifacts/
+*.zip
