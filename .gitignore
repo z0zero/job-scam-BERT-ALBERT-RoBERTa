@@ -7,3 +7,4 @@ fake_job_postings.csv
 venv/
 *.log
 .claude/
+.worktrees/
