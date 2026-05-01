@@ -56,6 +56,8 @@ REQUIRED_MARKERS = [
     "plot_roc_pr_curves",
     "plot_learning_curves",
     "build_error_analysis",
+    "build_error_summary_by_model",
+    "error_summary_by_model.csv",
     "build_subgroup_metrics",
     "export_best_model",
 ]
