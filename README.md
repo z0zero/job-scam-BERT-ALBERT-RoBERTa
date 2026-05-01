@@ -118,7 +118,7 @@ The app loads `./best_model/` on startup and fails early if it is missing.
 
 **Option A: Use the latest exported Transformer artifact**
 
-Run `research_pipeline.ipynb` in Google Colab and copy the exported `best_model/` folder from the notebook artifacts. In the latest executed run, the exported model is BERT seed `2024`.
+[Download `best_model`](https://drive.google.com/file/d/1r6ikkGpA2ONTEs3A9TzMWvHDIcNazPYF/view?usp=drive_link) and extract it at the project root so `./best_model/` contains the model weights, tokenizer, and `model_meta.json`. In the latest executed run, the exported model is BERT seed `2024`.
 
 **Option B: Train from scratch**
 

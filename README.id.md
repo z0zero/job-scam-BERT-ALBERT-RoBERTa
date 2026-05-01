@@ -118,7 +118,7 @@ Aplikasi memuat `./best_model/` saat startup dan akan gagal lebih awal jika fold
 
 **Opsi A: Gunakan artifact Transformer export terbaru**
 
-Jalankan `research_pipeline.ipynb` di Google Colab lalu salin folder `best_model/` dari artifact notebook. Pada run terbaru, model yang diekspor adalah BERT seed `2024`.
+[Download `best_model`](https://drive.google.com/file/d/1r6ikkGpA2ONTEs3A9TzMWvHDIcNazPYF/view?usp=drive_link) lalu ekstrak di root proyek sehingga `./best_model/` berisi model weights, tokenizer, dan `model_meta.json`. Pada run terbaru, model yang diekspor adalah BERT seed `2024`.
 
 **Opsi B: Training dari awal**
 
