@@ -78,6 +78,16 @@ Bold marks the per-column best. Among Transformers, BERT wins on Accuracy, Preci
 | RoBERTa | 0.9858 ± 0.0036 | 0.8652 ± 0.0394 | 0.8385 ± 0.0407 | 0.8515 ± 0.0380 | 0.9220 | 0.9159 | 0.9933 | 0.9872 | 0.9106 |
 | ALBERT | 0.9853 ± 0.0035 | 0.8875 ± 0.0292 | 0.8000 ± 0.0846 | 0.8395 ± 0.0455 | 0.9159 | 0.8974 | 0.9948 | 0.9849 | 0.9007 |
 
+#### Model comparison figure
+
+![Model comparison - mean plus/minus standard deviation across seeds](artifacts/figures/model_comparison_mean_std.png)
+
+#### ROC and precision-recall figures
+
+![ROC curves](artifacts/figures/roc_curves.png)
+
+![Precision-recall curves](artifacts/figures/pr_curves.png)
+
 ### 2.3 Per-seed test-set fraud-F1 (raw values feeding the means above)
 
 | Seed | TFIDF_LogReg | TFIDF_LinearSVM | BERT | ALBERT | RoBERTa |
@@ -195,6 +205,16 @@ The configuration exported for the application is the BERT run on seed 2024 with
 
 Note the counter-intuitive ALBERT result: its parameter count is much smaller, yet wall-clock training is the longest and per-sample inference is the slowest. This is consistent with ALBERT's cross-layer parameter-sharing design, which reduces memory but does not reduce FLOPs per forward pass.
 
+### 3.5 Learning curves
+
+The learning-curve plots below summarize mean training dynamics across seeds for Transformer models. Shaded regions indicate cross-seed variability.
+
+![Learning curves - accuracy](artifacts/figures/learning_curves_accuracy_mean_std.png)
+
+![Learning curves - fraud F1](artifacts/figures/learning_curves_f1_mean_std.png)
+
+![Learning curves - loss](artifacts/figures/learning_curves_loss_mean_std.png)
+
 ---
 
 ## 4. Key Findings & Discussion Points
@@ -268,11 +288,11 @@ The notebook generates a substantial set of figures. The four anchor plots below
 **Story:** Establishes the central methodological challenge of the thesis — a 4.84% fraud rate and significant missingness in `company_profile`, `requirements`, and `benefits`. This justifies (a) class-weighted loss and (b) concatenation-based text fusion. Place this in the *Dataset* section of the paper.
 
 ### 5.2 Per-run learning curves: loss / accuracy / fraud-F1 vs. epoch (Cell 25 / Cell 37)
-**Files:** `artifacts/runs/seed_<S>/<model>/learning_curves.png` (one per model+seed) and the aggregated learning-curve panels rendered in cell 37.
+**Files:** `artifacts/runs/seed_<S>/<model>/learning_curves.png` (one per model+seed), plus `artifacts/figures/learning_curves_loss_mean_std.png`, `learning_curves_accuracy_mean_std.png`, and `learning_curves_f1_mean_std.png`.
 **Story:** Shows that BERT and RoBERTa converge cleanly within 3-4 epochs and that early stopping fires before training-loss minima — i.e., the validation curve is the binding constraint, not over-training. ALBERT seed 123's curve is the visual evidence behind Findings #3 and #6: jagged validation F1 and a wider train/val gap. Use in the *Training Behavior* subsection.
 
-### 5.3 ROC and Precision-Recall curve panel (Cell 39)
-**File:** `artifacts/figures/roc_pr_curves.png` (Figure 1400×500, 2 axes).
+### 5.3 ROC and Precision-Recall curves (Cell 39)
+**Files:** `artifacts/figures/roc_curves.png` and `artifacts/figures/pr_curves.png`.
 **Story:** Threshold-independent comparison. The ROC view shows the saturation noted in Finding #9 (all models cluster); the PR view fans out and is the right vehicle for the comparative claim. Pair this with a one-line caption that explicitly tells the reader to focus on the right-hand panel because of class imbalance.
 
 ### 5.4 Mean ± std bar chart of model comparison (Cell 40)
@@ -324,7 +344,7 @@ The notebook generates a substantial set of figures. The four anchor plots below
 - `artifacts/summary/thresholds_by_model.csv` — basis for §3.2 and Finding #6.
 - `artifacts/summary/default_threshold_metrics.csv` and `tuned_threshold_metrics.csv` — basis for §2.4 and Finding #8.
 - `artifacts/summary/table_1_dataset_statistics.csv`, `table_2_model_performance.csv`, `table_3_statistical_comparison.csv`, `table_4_runtime.csv` — paper-ready CSV tables.
-- `artifacts/figures/roc_pr_curves.png`, `model_comparison_mean_std.png` — main figures (Visualizations 5.3, 5.4).
+- `artifacts/figures/roc_curves.png`, `pr_curves.png`, `model_comparison_mean_std.png` — main figures (Visualizations 5.3, 5.4).
 - `artifacts/runs/seed_<S>/<model>/learning_curves.png` and `confusion_matrix.png` — per-run figures (Visualizations 5.2, 5.5).
 - `best_model/` — exported BERT (seed 2024, threshold 0.10) for the application; contains `model_meta.json` with the full configuration used for export.
 

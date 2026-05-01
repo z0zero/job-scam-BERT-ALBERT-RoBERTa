@@ -78,6 +78,16 @@ Cetak tebal menandai nilai terbaik per kolom. Di antara Transformer: BERT unggul
 | RoBERTa | 0,9858 ± 0,0036 | 0,8652 ± 0,0394 | 0,8385 ± 0,0407 | 0,8515 ± 0,0380 | 0,9220 | 0,9159 | 0,9933 | 0,9872 | 0,9106 |
 | ALBERT | 0,9853 ± 0,0035 | 0,8875 ± 0,0292 | 0,8000 ± 0,0846 | 0,8395 ± 0,0455 | 0,9159 | 0,8974 | 0,9948 | 0,9849 | 0,9007 |
 
+#### Figur perbandingan model
+
+![Perbandingan model - mean plus/minus standard deviation across seeds](artifacts/figures/model_comparison_mean_std.png)
+
+#### Figur ROC dan precision-recall
+
+![Kurva ROC](artifacts/figures/roc_curves.png)
+
+![Kurva precision-recall](artifacts/figures/pr_curves.png)
+
 ### 2.3 Fraud-F1 per seed pada test set (data mentah yang menyusun rata-rata di atas)
 
 | Seed | TFIDF_LogReg | TFIDF_LinearSVM | BERT | ALBERT | RoBERTa |
@@ -195,6 +205,16 @@ Konfigurasi yang diekspor untuk aplikasi adalah run BERT pada seed 2024 dengan t
 
 Hasil ALBERT bersifat kontra-intuitif: meskipun jumlah parameternya jauh lebih kecil, runtime pelatihan justru paling lama dan latensi inferensinya paling tinggi. Hal ini konsisten dengan rancangan parameter sharing antar layer pada ALBERT — sharing menghemat memori namun tidak menghemat FLOPs per forward pass.
 
+### 3.5 Learning curves
+
+Plot learning curve di bawah ini merangkum dinamika pelatihan rata-rata antar seed untuk model Transformer. Area bayangan menunjukkan variasi antar seed.
+
+![Learning curves - accuracy](artifacts/figures/learning_curves_accuracy_mean_std.png)
+
+![Learning curves - fraud F1](artifacts/figures/learning_curves_f1_mean_std.png)
+
+![Learning curves - loss](artifacts/figures/learning_curves_loss_mean_std.png)
+
 ---
 
 ## 4. Temuan Utama dan Poin Diskusi
@@ -268,11 +288,11 @@ Notebook menghasilkan banyak gambar. Empat plot anchor di bawah membawa cerita u
 **Cerita:** Menetapkan tantangan metodologis utama skripsi — fraud rate 4,84% dan missingness besar di `company_profile`, `requirements`, dan `benefits`. Menjadi justifikasi (a) class-weighted loss dan (b) penggabungan teks. Tempatkan di bagian *Dataset* naskah.
 
 ### 5.2 Learning curve per run: loss / accuracy / fraud-F1 vs. epoch (Sel 25 / Sel 37)
-**Berkas:** `artifacts/runs/seed_<S>/<model>/learning_curves.png` (satu per pasangan model+seed) dan panel learning curve agregat dari sel 37.
+**Berkas:** `artifacts/runs/seed_<S>/<model>/learning_curves.png` (satu per pasangan model+seed), serta `artifacts/figures/learning_curves_loss_mean_std.png`, `learning_curves_accuracy_mean_std.png`, dan `learning_curves_f1_mean_std.png`.
 **Cerita:** Menunjukkan BERT dan RoBERTa konvergen rapi dalam 3-4 epoch dan early stopping aktif sebelum minimum loss training — kurva validation-lah yang menjadi constraint, bukan over-training. Kurva ALBERT seed 123 menjadi bukti visual untuk Temuan #3 dan #6: validation F1 yang naik-turun dan jarak train/val yang lebih lebar. Gunakan di subbagian *Training Behavior*.
 
-### 5.3 Panel kurva ROC dan Precision-Recall (Sel 39)
-**Berkas:** `artifacts/figures/roc_pr_curves.png` (Figure 1400×500, 2 sumbu).
+### 5.3 Kurva ROC dan Precision-Recall (Sel 39)
+**Berkas:** `artifacts/figures/roc_curves.png` dan `artifacts/figures/pr_curves.png`.
 **Cerita:** Perbandingan independen-threshold. Tampilan ROC menunjukkan saturasi (Temuan #9) — semua model berkumpul; tampilan PR membuka rentang dan menjadi kendaraan utama klaim komparatif. Sertakan caption satu kalimat yang mengarahkan pembaca fokus ke panel kanan karena imbalance kelas.
 
 ### 5.4 Bar chart mean ± std perbandingan model (Sel 40)
@@ -324,7 +344,7 @@ Notebook menghasilkan banyak gambar. Empat plot anchor di bawah membawa cerita u
 - `artifacts/summary/thresholds_by_model.csv` — basis §3.2 dan Temuan #6.
 - `artifacts/summary/default_threshold_metrics.csv` dan `tuned_threshold_metrics.csv` — basis §2.4 dan Temuan #8.
 - `artifacts/summary/table_1_dataset_statistics.csv`, `table_2_model_performance.csv`, `table_3_statistical_comparison.csv`, `table_4_runtime.csv` — tabel siap pakai untuk naskah.
-- `artifacts/figures/roc_pr_curves.png`, `model_comparison_mean_std.png` — figur utama (Visualisasi 5.3, 5.4).
+- `artifacts/figures/roc_curves.png`, `pr_curves.png`, `model_comparison_mean_std.png` — figur utama (Visualisasi 5.3, 5.4).
 - `artifacts/runs/seed_<S>/<model>/learning_curves.png` dan `confusion_matrix.png` — figur per run (Visualisasi 5.2, 5.5).
 - `best_model/` — BERT yang diekspor (seed 2024, threshold 0,10) untuk aplikasi; berisi `model_meta.json` dengan konfigurasi lengkap pada saat ekspor.
 
