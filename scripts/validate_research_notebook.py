@@ -40,6 +40,8 @@ REQUIRED_MARKERS = [
     "score_threshold_quantiles",
     "latency_sample_size",
     "latency_repeats",
+    "compute_directory_size_mb",
+    "summarize_latency_seconds",
     "WeightedTrainer",
     "train_and_evaluate",
     "build_baseline_pipeline",
@@ -59,6 +61,9 @@ REQUIRED_MARKERS = [
     "build_error_summary_by_model",
     "error_summary_by_model.csv",
     "build_subgroup_metrics",
+    "build_deployment_readiness_table",
+    "deployment_readiness.csv",
+    "thresholds_by_model.csv",
     "export_best_model",
 ]
 
