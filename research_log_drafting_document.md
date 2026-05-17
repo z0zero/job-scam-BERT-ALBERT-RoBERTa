@@ -1,6 +1,7 @@
 # Research Log / Drafting Document
 **Thesis:** *Rancang Bangun Aplikasi Job Scam Detection*
 **Source notebook:** `research_pipeline.ipynb`
+**Supplemental EDA notebook:** `eda_text_visualization.ipynb`
 **Compiled:** 2026-05-01
 **Run environment:** Google Colab, Tesla T4 GPU, PyTorch 2.10.0+cu128, Transformers 5.0.0, Python 3.12.13, FP16 enabled
 
@@ -19,6 +20,21 @@ The experiments use the **EMSCAD (Employment Scam Aegean Dataset) — `fake_job_
 | Fraud rate | 4.84% |
 
 The dataset is heavily class-imbalanced. Five free-text fields are concatenated to form the model input: `title`, `company_profile`, `description`, `requirements`, `benefits`. Of these, three carry substantial missingness (`company_profile`: 3,308 missing; `requirements`: 2,696; `benefits`: 7,212), which is filled with empty strings before concatenation. Categorical metadata (`telecommuting`, `has_company_logo`, `has_questions`, `employment_type`, `required_experience`, `industry`, `function`) is preserved for subgroup analysis but is **not** fed to the model.
+
+#### Supplemental EDA results
+
+The supplemental notebook `eda_text_visualization.ipynb` clarifies the dataset-to-model bridge before training. It explicitly maps `fraudulent = 0` to **Real / Legitimate Job** and `fraudulent = 1` to **Fake / Fraudulent Job**, then constructs the same core text input used by the modeling pipeline by joining `title`, `company_profile`, `description`, `requirements`, and `benefits` into `combined_text`.
+
+![Top 4 Text Visualization Examples - Job Scam EDA](artifacts/figures/eda_text_visualization_examples.png)
+
+The four-panel EDA figure supports the Dataset and Methodology sections:
+
+- **All-posting word cloud:** establishes the dominant job-posting vocabulary after lightweight stopword filtering. These terms describe the language space the classifier will see, but they are not class evidence by themselves.
+- **Class-to-keyword flow:** shows that legitimate and fraudulent postings have different distinctive terms, making the numeric target `fraudulent` interpretable as a learnable text-label relationship.
+- **Categorical flow:** shows how `label`, `employment_type`, and `required_experience` co-occur. These metadata fields are not fed to the main text model, but they justify later subgroup analysis.
+- **Fraudulent distinctive-term cloud:** highlights terms that are relatively more characteristic of fake/fraudulent postings than legitimate postings. This is a stronger fraud-oriented EDA view than a simple top-frequency word cloud.
+
+The key implication is that EMSCAD is not only a table of labeled rows: it contains an imbalanced binary label, sparse free-text fields that must be combined and cleaned, and observable lexical/category patterns that motivate the downstream classifier.
 
 ### 1.2 Preprocessing
 A single deterministic `clean_text` function is applied to the concatenated free-text. The pipeline is intentionally minimal so that downstream tokenizers do most of the normalization work:
@@ -277,33 +293,40 @@ ALBERT's smaller checkpoint (46 MB) is the headline marketing claim of the archi
 ### Finding 17 — Application export pipeline is reproducible end-to-end
 The notebook's selection logic (`select_best_completed_run`) deterministically produces the same export — BERT, seed 2024, threshold 0.10 — given the existing `artifacts/` directory. The exported `best_model/model_meta.json` snapshots the full configuration, the selected threshold, the metric values, and the preprocessing description string. From the application's side, inference therefore needs only: (a) the cleaning function in `src/models/preprocessor.py`, (b) the saved tokenizer + model under `best_model/`, and (c) the threshold from `model_meta.json`. There are no hidden dependencies on the training environment. The manuscript should reference this section as evidence that the application-side artifact is independent of the experimental notebook.
 
+### Finding 18 — EDA confirms that EMSCAD can be framed as a Real/Fake text classification problem
+The supplemental EDA notebook shows the modeling chain before any training occurs: `fraudulent` supplies the binary target, the five free-text fields supply the model input, missing text fields require empty-string handling, and the 4.84% fraud rate requires imbalance-aware evaluation. The four-panel EDA visualization also shows class-specific lexical patterns and category-label co-occurrence, which makes the later TF-IDF and Transformer experiments methodologically grounded rather than purely mechanical.
+
 ---
 
 ## 5. Visualization Candidates
 
-The notebook generates a substantial set of figures. The four anchor plots below carry the headline story; an optional fifth and sixth support the error-analysis subsection. Each lives under `artifacts/figures/` or per-run `artifacts/runs/seed_<S>/<model>/learning_curves.png`.
+The research pipeline and supplemental EDA notebook generate a substantial set of figures. The five anchor plots below carry the headline story; optional sixth and seventh figures support the error-analysis subsection. Each lives under `artifacts/figures/` or per-run `artifacts/runs/seed_<S>/<model>/learning_curves.png`.
 
-### 5.1 Class-distribution and missing-value bar pair (Cell 12)
+### 5.1 Supplemental EDA four-panel figure (`eda_text_visualization.ipynb`)
+**File:** `artifacts/figures/eda_text_visualization_examples.png`.
+**Story:** Places the EMSCAD dataset into a model-building narrative before training: label mapping, common posting vocabulary, class-distinctive terms, categorical co-occurrence, and fake-job distinctive terms. Use this in the *Dataset / Exploratory Data Analysis* subsection to answer how EMSCAD becomes a Real/Fake Job classification dataset.
+
+### 5.2 Class-distribution and missing-value bar pair (Cell 12)
 **File:** generated inline; persist via `FIGURES_DIR / "data_profile.png"` if not already saved.
 **Story:** Establishes the central methodological challenge of the thesis — a 4.84% fraud rate and significant missingness in `company_profile`, `requirements`, and `benefits`. This justifies (a) class-weighted loss and (b) concatenation-based text fusion. Place this in the *Dataset* section of the paper.
 
-### 5.2 Per-run learning curves: loss / accuracy / fraud-F1 vs. epoch (Cell 25 / Cell 37)
+### 5.3 Per-run learning curves: loss / accuracy / fraud-F1 vs. epoch (Cell 25 / Cell 37)
 **Files:** `artifacts/runs/seed_<S>/<model>/learning_curves.png` (one per model+seed), plus `artifacts/figures/learning_curves_loss_mean_std.png`, `learning_curves_accuracy_mean_std.png`, and `learning_curves_f1_mean_std.png`.
 **Story:** Shows that BERT and RoBERTa converge cleanly within 3-4 epochs and that early stopping fires before training-loss minima — i.e., the validation curve is the binding constraint, not over-training. ALBERT seed 123's curve is the visual evidence behind Findings #3 and #6: jagged validation F1 and a wider train/val gap. Use in the *Training Behavior* subsection.
 
-### 5.3 ROC and Precision-Recall curves (Cell 39)
+### 5.4 ROC and Precision-Recall curves (Cell 39)
 **Files:** `artifacts/figures/roc_curves.png` and `artifacts/figures/pr_curves.png`.
 **Story:** Threshold-independent comparison. The ROC view shows the saturation noted in Finding #9 (all models cluster); the PR view fans out and is the right vehicle for the comparative claim. Pair this with a one-line caption that explicitly tells the reader to focus on the right-hand panel because of class imbalance.
 
-### 5.4 Mean ± std bar chart of model comparison (Cell 40)
+### 5.5 Mean ± std bar chart of model comparison (Cell 40)
 **File:** `artifacts/figures/model_comparison_mean_std.png` (Figure 1200×600).
 **Story:** Direct visual answer to the comparative research question. Error bars (std across the 3 seeds) make the variance findings legible — in particular ALBERT's wide recall whisker (Finding #3) and BERT's tight precision whisker (Finding #1). Centerpiece of the *Results* section.
 
-### 5.5 Per-seed test-set confusion matrices for the three Transformers (optional)
+### 5.6 Per-seed test-set confusion matrices for the three Transformers (optional)
 **File:** typically saved alongside each run; verify `artifacts/runs/seed_<S>/<model>/confusion_matrix.png`.
 **Story:** Supports Findings #7 and #10 — the bottleneck is FN, not FP, and the bottleneck is concentrated on a recurring set of titles. Reading three confusion matrices side-by-side per seed makes the BERT-vs-ALBERT FN gap visually explicit.
 
-### 5.6 Subgroup F1 bar chart for BERT (optional, derive from `predictions_with_subgroups.csv`)
+### 5.7 Subgroup F1 bar chart for BERT (optional, derive from `predictions_with_subgroups.csv`)
 **File:** not auto-generated; recommend deriving from cell 43's output.
 **Story:** Supports Findings #14 and #15. A one-row bar chart sliced by `has_company_logo` and `employment_type` illustrates the fairness/operational concern that BERT's strong headline number hides regimes where it is materially weaker.
 
@@ -316,9 +339,9 @@ The notebook generates a substantial set of figures. The four anchor plots below
 | Abstract — headline numbers | §2.1, §2.5 |
 | Introduction — problem framing | Finding #14 (logo-less postings as the operational pain point) |
 | Related Work — bridge to TF-IDF baselines | Finding #2 |
-| Dataset | §1.1, §1.2, Visualization 5.1 |
+| Dataset / Exploratory Data Analysis | §1.1, §1.2, Finding #18, Visualizations 5.1, 5.2 |
 | Methodology | §1.3, §3.1, §3.2 |
-| Results — main comparison | §2.1, §2.2, §2.3, Visualization 5.4 |
+| Results — main comparison | §2.1, §2.2, §2.3, Visualization 5.5 |
 | Results — calibration & thresholds | §2.4, §3.2, Findings #6, #8, #11 |
 | Results — significance | §2.7, Finding #13 |
 | Results — error analysis | §2.6, §2.8, Findings #7, #10, #14, #15 |
@@ -331,6 +354,7 @@ The notebook generates a substantial set of figures. The four anchor plots below
 
 ## Appendix A — Files generated by the pipeline (referenced from this log)
 
+- `eda_text_visualization.ipynb` — supplemental EDA notebook that documents label mapping, dataset profile, text visualizations, and the EMSCAD-to-classifier narrative.
 - `artifacts/environment.json` — full reproducibility manifest.
 - `artifacts/data_profile.json` — Section 1.1 source.
 - `artifacts/summary/all_runs.csv` — every per-seed × per-model row (raw metric values, used to build §2.3).
@@ -344,8 +368,8 @@ The notebook generates a substantial set of figures. The four anchor plots below
 - `artifacts/summary/thresholds_by_model.csv` — basis for §3.2 and Finding #6.
 - `artifacts/summary/default_threshold_metrics.csv` and `tuned_threshold_metrics.csv` — basis for §2.4 and Finding #8.
 - `artifacts/summary/table_1_dataset_statistics.csv`, `table_2_model_performance.csv`, `table_3_statistical_comparison.csv`, `table_4_runtime.csv` — paper-ready CSV tables.
-- `artifacts/figures/roc_curves.png`, `pr_curves.png`, `model_comparison_mean_std.png` — main figures (Visualizations 5.3, 5.4).
-- `artifacts/runs/seed_<S>/<model>/learning_curves.png` and `confusion_matrix.png` — per-run figures (Visualizations 5.2, 5.5).
+- `artifacts/figures/eda_text_visualization_examples.png`, `roc_curves.png`, `pr_curves.png`, `model_comparison_mean_std.png` — main figures (Visualizations 5.1, 5.4, 5.5).
+- `artifacts/runs/seed_<S>/<model>/learning_curves.png` and `confusion_matrix.png` — per-run figures (Visualizations 5.3, 5.6).
 - `best_model/` — exported BERT (seed 2024, threshold 0.10) for the application; contains `model_meta.json` with the full configuration used for export.
 
 ---

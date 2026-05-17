@@ -1,6 +1,7 @@
 # Catatan Penelitian / Dokumen Penyusunan Naskah
 **Skripsi:** *Rancang Bangun Aplikasi Job Scam Detection*
 **Notebook sumber:** `research_pipeline.ipynb`
+**Notebook EDA tambahan:** `eda_text_visualization.ipynb`
 **Tanggal kompilasi:** 2026-05-01
 **Lingkungan eksekusi:** Google Colab, GPU Tesla T4, PyTorch 2.10.0+cu128, Transformers 5.0.0, Python 3.12.13, FP16 aktif
 
@@ -19,6 +20,21 @@ Eksperimen menggunakan **EMSCAD (Employment Scam Aegean Dataset) — `fake_job_p
 | Tingkat fraud | 4,84% |
 
 Dataset ini sangat tidak seimbang (highly imbalanced). Lima kolom teks bebas digabungkan menjadi input model: `title`, `company_profile`, `description`, `requirements`, `benefits`. Tiga di antaranya memiliki proporsi missing yang besar (`company_profile`: 3.308 missing; `requirements`: 2.696; `benefits`: 7.212), yang diisi dengan string kosong sebelum digabungkan. Metadata kategorikal (`telecommuting`, `has_company_logo`, `has_questions`, `employment_type`, `required_experience`, `industry`, `function`) disimpan untuk analisis subkelompok namun **tidak** dimasukkan ke model.
+
+#### Hasil EDA tambahan
+
+Notebook tambahan `eda_text_visualization.ipynb` memperjelas jembatan dari dataset menuju model sebelum proses training. Notebook tersebut memetakan `fraudulent = 0` sebagai **Real / Legitimate Job** dan `fraudulent = 1` sebagai **Fake / Fraudulent Job**, lalu membentuk input teks utama yang sama dengan pipeline model melalui penggabungan `title`, `company_profile`, `description`, `requirements`, dan `benefits` menjadi `combined_text`.
+
+![Top 4 Text Visualization Examples - Job Scam EDA](artifacts/figures/eda_text_visualization_examples.png)
+
+Figur EDA empat panel ini mendukung bagian Dataset dan Metodologi:
+
+- **Word cloud seluruh posting:** menggambarkan kosakata dominan pada seluruh lowongan setelah filtering stopword ringan. Kata-kata ini menunjukkan ruang bahasa yang akan dilihat classifier, tetapi belum menjadi bukti pembeda kelas.
+- **Class-to-keyword flow:** menunjukkan bahwa lowongan legitimate dan fraudulent memiliki term yang berbeda secara relatif, sehingga label numerik `fraudulent` dapat dipahami sebagai relasi teks-label yang bisa dipelajari model.
+- **Categorical flow:** menunjukkan ko-occurence antara `label`, `employment_type`, dan `required_experience`. Metadata ini tidak dimasukkan ke model teks utama, tetapi menjadi dasar analisis subkelompok.
+- **Fraudulent distinctive-term cloud:** menyoroti term yang relatif lebih khas pada lowongan fake/fraudulent dibanding legitimate. Ini lebih tepat untuk analisis fraud daripada word cloud frekuensi umum.
+
+Implikasi utamanya: EMSCAD bukan hanya tabel berlabel, tetapi dataset dengan label biner tidak seimbang, kolom teks yang perlu digabung dan dibersihkan, serta pola leksikal/kategorikal yang dapat memotivasi model klasifikasi.
 
 ### 1.2 Praproses Teks
 Fungsi `clean_text` deterministik diterapkan pada teks gabungan. Pipeline sengaja dibuat minimal agar mayoritas normalisasi dilakukan oleh tokenizer model:
@@ -277,33 +293,40 @@ Checkpoint ALBERT yang lebih kecil (46 MB) adalah klaim utama arsitekturnya, nam
 ### Temuan 17 — Pipeline ekspor aplikasi sepenuhnya reproducible
 Logika seleksi pada notebook (`select_best_completed_run`) secara deterministik menghasilkan ekspor yang sama — BERT, seed 2024, threshold 0,10 — bila direktori `artifacts/` yang ada digunakan. File `best_model/model_meta.json` yang diekspor menyimpan konfigurasi penuh, threshold terpilih, nilai metrik, dan deskripsi praproses. Dari sisi aplikasi, inferensi hanya membutuhkan: (a) fungsi pembersihan teks pada `src/models/preprocessor.py`, (b) tokenizer dan model tersimpan pada `best_model/`, dan (c) threshold dari `model_meta.json`. Tidak ada dependensi tersembunyi pada lingkungan training. Naskah dapat merujuk bagian ini sebagai bukti bahwa artifak sisi aplikasi independen dari notebook eksperimen.
 
+### Temuan 18 — EDA menegaskan bahwa EMSCAD dapat diformulasikan sebagai klasifikasi teks Real/Fake
+Notebook EDA tambahan menunjukkan rantai pemodelan sebelum training dilakukan: `fraudulent` menyediakan target biner, lima kolom teks menyediakan input model, kolom teks kosong perlu ditangani dengan string kosong, dan fraud rate 4,84% menuntut evaluasi yang peka terhadap imbalance. Visualisasi EDA empat panel juga menunjukkan pola leksikal spesifik kelas dan ko-occurence label-kategori, sehingga eksperimen TF-IDF dan Transformer memiliki dasar metodologis yang jelas, bukan sekadar menjalankan model secara mekanis.
+
 ---
 
 ## 5. Kandidat Visualisasi
 
-Notebook menghasilkan banyak gambar. Empat plot anchor di bawah membawa cerita utama; opsional kelima dan keenam mendukung subbagian error analysis. Setiap gambar ada di `artifacts/figures/` atau di dalam folder run `artifacts/runs/seed_<S>/<model>/learning_curves.png`.
+Pipeline riset dan notebook EDA tambahan menghasilkan banyak gambar. Lima plot anchor di bawah membawa cerita utama; opsional keenam dan ketujuh mendukung subbagian error analysis. Setiap gambar ada di `artifacts/figures/` atau di dalam folder run `artifacts/runs/seed_<S>/<model>/learning_curves.png`.
 
-### 5.1 Pasangan bar class distribution dan missing value (Sel 12)
+### 5.1 Figur EDA empat panel tambahan (`eda_text_visualization.ipynb`)
+**Berkas:** `artifacts/figures/eda_text_visualization_examples.png`.
+**Cerita:** Menempatkan dataset EMSCAD ke dalam narasi pembentukan model sebelum training: pemetaan label, kosakata umum lowongan, term pembeda antar kelas, ko-occurence kategori, dan term khas fake job. Gunakan pada subbagian *Dataset / Exploratory Data Analysis* untuk menjawab bagaimana EMSCAD menjadi dataset klasifikasi Real/Fake Job.
+
+### 5.2 Pasangan bar class distribution dan missing value (Sel 12)
 **Berkas:** dirender inline; persist ke `FIGURES_DIR / "data_profile.png"` jika belum disimpan.
 **Cerita:** Menetapkan tantangan metodologis utama skripsi — fraud rate 4,84% dan missingness besar di `company_profile`, `requirements`, dan `benefits`. Menjadi justifikasi (a) class-weighted loss dan (b) penggabungan teks. Tempatkan di bagian *Dataset* naskah.
 
-### 5.2 Learning curve per run: loss / accuracy / fraud-F1 vs. epoch (Sel 25 / Sel 37)
+### 5.3 Learning curve per run: loss / accuracy / fraud-F1 vs. epoch (Sel 25 / Sel 37)
 **Berkas:** `artifacts/runs/seed_<S>/<model>/learning_curves.png` (satu per pasangan model+seed), serta `artifacts/figures/learning_curves_loss_mean_std.png`, `learning_curves_accuracy_mean_std.png`, dan `learning_curves_f1_mean_std.png`.
 **Cerita:** Menunjukkan BERT dan RoBERTa konvergen rapi dalam 3-4 epoch dan early stopping aktif sebelum minimum loss training — kurva validation-lah yang menjadi constraint, bukan over-training. Kurva ALBERT seed 123 menjadi bukti visual untuk Temuan #3 dan #6: validation F1 yang naik-turun dan jarak train/val yang lebih lebar. Gunakan di subbagian *Training Behavior*.
 
-### 5.3 Kurva ROC dan Precision-Recall (Sel 39)
+### 5.4 Kurva ROC dan Precision-Recall (Sel 39)
 **Berkas:** `artifacts/figures/roc_curves.png` dan `artifacts/figures/pr_curves.png`.
 **Cerita:** Perbandingan independen-threshold. Tampilan ROC menunjukkan saturasi (Temuan #9) — semua model berkumpul; tampilan PR membuka rentang dan menjadi kendaraan utama klaim komparatif. Sertakan caption satu kalimat yang mengarahkan pembaca fokus ke panel kanan karena imbalance kelas.
 
-### 5.4 Bar chart mean ± std perbandingan model (Sel 40)
+### 5.5 Bar chart mean ± std perbandingan model (Sel 40)
 **Berkas:** `artifacts/figures/model_comparison_mean_std.png` (Figure 1200×600).
 **Cerita:** Jawaban visual langsung untuk pertanyaan penelitian komparatif. Bar error (std antar 3 seed) membuat temuan variansi mudah terbaca — terutama whisker recall ALBERT yang lebar (Temuan #3) dan whisker precision BERT yang rapat (Temuan #1). Centerpiece bagian *Results*.
 
-### 5.5 Confusion matrix per seed untuk ketiga Transformer (opsional)
+### 5.6 Confusion matrix per seed untuk ketiga Transformer (opsional)
 **Berkas:** biasanya tersimpan di samping setiap run; verifikasi `artifacts/runs/seed_<S>/<model>/confusion_matrix.png`.
 **Cerita:** Mendukung Temuan #7 dan #10 — bottleneck adalah FN, bukan FP, dan bottleneck terkonsentrasi pada sekumpulan judul yang berulang. Membaca tiga confusion matrix bersisian per seed memperjelas selisih FN BERT-vs-ALBERT secara visual.
 
-### 5.6 Bar chart F1 subkelompok untuk BERT (opsional, derivatif dari `predictions_with_subgroups.csv`)
+### 5.7 Bar chart F1 subkelompok untuk BERT (opsional, derivatif dari `predictions_with_subgroups.csv`)
 **Berkas:** belum dibuat otomatis; rekomendasi: turunkan dari output sel 43.
 **Cerita:** Mendukung Temuan #14 dan #15. Bar chart satu baris yang dipisah berdasarkan `has_company_logo` dan `employment_type` mengilustrasikan kekhawatiran fairness/operasional yang tertutupi oleh angka headline BERT.
 
@@ -316,9 +339,9 @@ Notebook menghasilkan banyak gambar. Empat plot anchor di bawah membawa cerita u
 | Abstrak — angka headline | §2.1, §2.5 |
 | Pendahuluan — pembingkaian masalah | Temuan #14 (lowongan tanpa logo sebagai titik nyeri operasional) |
 | Tinjauan Pustaka — jembatan ke baseline TF-IDF | Temuan #2 |
-| Dataset | §1.1, §1.2, Visualisasi 5.1 |
+| Dataset / Exploratory Data Analysis | §1.1, §1.2, Temuan #18, Visualisasi 5.1, 5.2 |
 | Metodologi | §1.3, §3.1, §3.2 |
-| Hasil — perbandingan utama | §2.1, §2.2, §2.3, Visualisasi 5.4 |
+| Hasil — perbandingan utama | §2.1, §2.2, §2.3, Visualisasi 5.5 |
 | Hasil — kalibrasi dan threshold | §2.4, §3.2, Temuan #6, #8, #11 |
 | Hasil — signifikansi | §2.7, Temuan #13 |
 | Hasil — analisis error | §2.6, §2.8, Temuan #7, #10, #14, #15 |
@@ -331,6 +354,7 @@ Notebook menghasilkan banyak gambar. Empat plot anchor di bawah membawa cerita u
 
 ## Lampiran A — Berkas yang dihasilkan pipeline (dirujuk oleh dokumen ini)
 
+- `eda_text_visualization.ipynb` — notebook EDA tambahan yang mendokumentasikan pemetaan label, profil dataset, visualisasi teks, dan narasi EMSCAD menuju classifier.
 - `artifacts/environment.json` — manifes reproducibility lengkap.
 - `artifacts/data_profile.json` — sumber Bagian 1.1.
 - `artifacts/summary/all_runs.csv` — setiap baris per seed × model (nilai metrik mentah, dipakai untuk §2.3).
@@ -344,8 +368,8 @@ Notebook menghasilkan banyak gambar. Empat plot anchor di bawah membawa cerita u
 - `artifacts/summary/thresholds_by_model.csv` — basis §3.2 dan Temuan #6.
 - `artifacts/summary/default_threshold_metrics.csv` dan `tuned_threshold_metrics.csv` — basis §2.4 dan Temuan #8.
 - `artifacts/summary/table_1_dataset_statistics.csv`, `table_2_model_performance.csv`, `table_3_statistical_comparison.csv`, `table_4_runtime.csv` — tabel siap pakai untuk naskah.
-- `artifacts/figures/roc_curves.png`, `pr_curves.png`, `model_comparison_mean_std.png` — figur utama (Visualisasi 5.3, 5.4).
-- `artifacts/runs/seed_<S>/<model>/learning_curves.png` dan `confusion_matrix.png` — figur per run (Visualisasi 5.2, 5.5).
+- `artifacts/figures/eda_text_visualization_examples.png`, `roc_curves.png`, `pr_curves.png`, `model_comparison_mean_std.png` — figur utama (Visualisasi 5.1, 5.4, 5.5).
+- `artifacts/runs/seed_<S>/<model>/learning_curves.png` dan `confusion_matrix.png` — figur per run (Visualisasi 5.3, 5.6).
 - `best_model/` — BERT yang diekspor (seed 2024, threshold 0,10) untuk aplikasi; berisi `model_meta.json` dengan konfigurasi lengkap pada saat ekspor.
 
 ---
