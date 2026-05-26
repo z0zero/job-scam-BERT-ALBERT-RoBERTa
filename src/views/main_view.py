@@ -50,18 +50,38 @@ class MainView:
         )
 
         text = ""
+        is_invalid = False
+
         if input_mode == "Paste Text":
             text = st.text_area(
                 "Paste the job description below:",
                 height=250,
                 placeholder="Enter or paste the full job posting text here...",
             )
+            if text:
+                word_count = len(text.split())
+                if word_count > 1500:
+                    st.error(f"❌ Word count exceeds 1500 limit: **{word_count}** / 1500 words.")
+                    is_invalid = True
+                else:
+                    st.caption(f"Word count: **{word_count}** / 1500 words")
         else:
             uploaded_file = st.file_uploader(
                 "Upload a screenshot of the job posting:",
-                type=["png", "jpg", "jpeg"],
+                type=["png", "jpg", "jpeg", "webp"],
             )
             if uploaded_file is not None:
+                # Max file size: 5MB
+                max_size_bytes = 5 * 1024 * 1024
+                if uploaded_file.size > max_size_bytes:
+                    st.error(
+                        f"❌ File size exceeds 5MB limit "
+                        f"(Current: {uploaded_file.size / (1024 * 1024):.2f} MB). "
+                        f"Please upload a smaller image."
+                    )
+                    is_invalid = True
+                    return "", is_invalid
+
                 image = Image.open(uploaded_file)
                 st.image(image, caption="Uploaded Image", use_container_width=True)
 
@@ -72,13 +92,20 @@ class MainView:
                         value=extracted,
                         height=250,
                     )
-        return text
+                    if text:
+                        word_count = len(text.split())
+                        if word_count > 1500:
+                            st.error(f"❌ Word count exceeds 1500 limit: **{word_count}** / 1500 words.")
+                            is_invalid = True
+                        else:
+                            st.caption(f"Word count: **{word_count}** / 1500 words")
+        return text, is_invalid
 
     @staticmethod
-    def render_result_section(on_analyze=None):
+    def render_result_section(is_disabled=False, on_analyze=None):
         st.subheader("Result")
         
-        analyze_clicked = st.button("Analyze", type="primary", use_container_width=True)
+        analyze_clicked = st.button("Analyze", type="primary", use_container_width=True, disabled=is_disabled)
         if analyze_clicked and on_analyze:
             on_analyze()
             
