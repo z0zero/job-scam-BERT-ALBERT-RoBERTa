@@ -43,9 +43,11 @@ class AppController:
                      self.view.render_error(str(e))
                      return ""
 
-        text = self.view.render_input_section(on_image_uploaded=handle_image_upload)
+        text, is_invalid = self.view.render_input_section(on_image_uploaded=handle_image_upload)
 
         def handle_analyze():
+            if is_invalid:
+                return
             if not text.strip():
                 self.view.render_warning("Please provide a job description to analyze.")
             else:
@@ -72,4 +74,4 @@ class AppController:
                     
                 self.view.render_classification_result(label, confidence, red_flags)
 
-        self.view.render_result_section(on_analyze=handle_analyze)
+        self.view.render_result_section(is_disabled=is_invalid, on_analyze=handle_analyze)
