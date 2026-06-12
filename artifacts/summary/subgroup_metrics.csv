@@ -1,0 +1,547 @@
+model_label,subgroup_column,subgroup_value,sample_count,fraud_count,fraud_precision,fraud_recall,fraud_f1
+BERT,telecommuting,0,7670,361,0.9310344827586207,0.8227146814404432,0.8735294117647059
+BERT,telecommuting,1,376,29,0.96,0.8275862068965517,0.8888888888888888
+BERT,has_company_logo,0,1630,242,0.905940594059406,0.756198347107438,0.8243243243243243
+BERT,has_company_logo,1,6416,148,0.971830985915493,0.9324324324324325,0.9517241379310345
+BERT,has_questions,0,4110,261,0.9515418502202643,0.8275862068965517,0.8852459016393442
+BERT,has_questions,1,3936,129,0.8974358974358975,0.813953488372093,0.8536585365853658
+BERT,employment_type,Contract,667,17,0.875,0.4117647058823529,0.56
+BERT,employment_type,Full-time,5240,230,0.9441860465116279,0.8826086956521739,0.9123595505617977
+BERT,employment_type,Other,90,4,1.0,0.5,0.6666666666666666
+BERT,employment_type,Part-time,396,36,0.896551724137931,0.7222222222222222,0.8
+BERT,employment_type,Temporary,104,1,0.0,0.0,0.0
+BERT,employment_type,nan,1549,102,0.9222222222222223,0.8137254901960784,0.8645833333333334
+BERT,required_experience,Associate,1042,20,0.8421052631578947,0.8,0.8205128205128205
+BERT,required_experience,Director,180,10,1.0,0.8,0.8888888888888888
+BERT,required_experience,Entry level,1257,82,0.8904109589041096,0.7926829268292683,0.8387096774193549
+BERT,required_experience,Executive,72,7,1.0,1.0,1.0
+BERT,required_experience,Internship,177,4,1.0,0.5,0.6666666666666666
+BERT,required_experience,Mid-Senior level,1746,48,0.9772727272727273,0.8958333333333334,0.9347826086956522
+BERT,required_experience,Not Applicable,479,28,0.9473684210526315,0.6428571428571429,0.7659574468085106
+BERT,required_experience,nan,3093,191,0.9418604651162791,0.8481675392670157,0.8925619834710744
+BERT,industry,Accounting,69,25,0.9130434782608695,0.84,0.875
+BERT,industry,Airlines/Aviation,29,0,0.0,0.0,0.0
+BERT,industry,Animation,1,0,0.0,0.0,0.0
+BERT,industry,Apparel & Fashion,48,0,0.0,0.0,0.0
+BERT,industry,Architecture & Planning,6,0,0.0,0.0,0.0
+BERT,industry,Automotive,61,1,1.0,1.0,1.0
+BERT,industry,Aviation & Aerospace,8,0,0.0,0.0,0.0
+BERT,industry,Banking,41,3,1.0,0.6666666666666666,0.8
+BERT,industry,Biotechnology,19,2,0.6666666666666666,1.0,0.8
+BERT,industry,Broadcast Media,30,0,0.0,0.0,0.0
+BERT,industry,Building Materials,35,0,0.0,0.0,0.0
+BERT,industry,Business Supplies and Equipment,13,3,1.0,1.0,1.0
+BERT,industry,Capital Markets,1,0,0.0,0.0,0.0
+BERT,industry,Chemicals,8,0,0.0,0.0,0.0
+BERT,industry,Civic & Social Organization,19,3,0.0,0.0,0.0
+BERT,industry,Civil Engineering,2,1,0.0,0.0,0.0
+BERT,industry,Commercial Real Estate,1,0,0.0,0.0,0.0
+BERT,industry,Computer & Network Security,24,4,1.0,0.5,0.6666666666666666
+BERT,industry,Computer Games,41,0,0.0,0.0,0.0
+BERT,industry,Computer Hardware,14,0,0.0,0.0,0.0
+BERT,industry,Computer Networking,14,5,1.0,0.8,0.8888888888888888
+BERT,industry,Computer Software,644,1,0.0,0.0,0.0
+BERT,industry,Construction,64,1,1.0,1.0,1.0
+BERT,industry,Consumer Electronics,31,0,0.0,0.0,0.0
+BERT,industry,Consumer Goods,29,0,0.0,0.0,0.0
+BERT,industry,Consumer Services,177,15,0.75,0.8,0.7741935483870968
+BERT,industry,Cosmetics,25,0,0.0,0.0,0.0
+BERT,industry,Defense & Space,3,0,0.0,0.0,0.0
+BERT,industry,Design,59,2,0.0,0.0,0.0
+BERT,industry,E-Learning,73,1,0.0,0.0,0.0
+BERT,industry,Education Management,337,0,0.0,0.0,0.0
+BERT,industry,Electrical/Electronic Manufacturing,33,1,1.0,1.0,1.0
+BERT,industry,Entertainment,36,1,1.0,1.0,1.0
+BERT,industry,Environmental Services,19,1,1.0,1.0,1.0
+BERT,industry,Events Services,13,0,0.0,0.0,0.0
+BERT,industry,Executive Office,2,0,0.0,0.0,0.0
+BERT,industry,Facilities Services,48,0,0.0,0.0,0.0
+BERT,industry,Farming,11,0,0.0,0.0,0.0
+BERT,industry,Financial Services,357,13,0.9230769230769231,0.9230769230769231,0.9230769230769231
+BERT,industry,Fishery,2,0,0.0,0.0,0.0
+BERT,industry,Food & Beverages,32,0,0.0,0.0,0.0
+BERT,industry,Food Production,20,0,0.0,0.0,0.0
+BERT,industry,Fund-Raising,9,0,0.0,0.0,0.0
+BERT,industry,Furniture,2,0,0.0,0.0,0.0
+BERT,industry,Gambling & Casinos,26,0,0.0,0.0,0.0
+BERT,industry,Government Administration,16,0,0.0,0.0,0.0
+BERT,industry,Government Relations,5,0,0.0,0.0,0.0
+BERT,industry,Graphic Design,14,0,0.0,0.0,0.0
+BERT,industry,"Health, Wellness and Fitness",56,9,1.0,1.0,1.0
+BERT,industry,Higher Education,4,0,0.0,0.0,0.0
+BERT,industry,Hospital & Health Care,220,17,1.0,0.8823529411764706,0.9375
+BERT,industry,Hospitality,44,8,1.0,0.875,0.9333333333333333
+BERT,industry,Human Resources,48,3,1.0,0.3333333333333333,0.5
+BERT,industry,Import and Export,2,0,0.0,0.0,0.0
+BERT,industry,Individual & Family Services,4,0,0.0,0.0,0.0
+BERT,industry,Information Services,17,1,1.0,1.0,1.0
+BERT,industry,Information Technology and Services,750,13,0.9,0.6923076923076923,0.782608695652174
+BERT,industry,Insurance,64,1,1.0,1.0,1.0
+BERT,industry,International Trade and Development,4,0,0.0,0.0,0.0
+BERT,industry,Internet,477,0,0.0,0.0,0.0
+BERT,industry,Investment Banking,2,0,0.0,0.0,0.0
+BERT,industry,Investment Management,3,1,0.0,0.0,0.0
+BERT,industry,Law Enforcement,5,0,0.0,0.0,0.0
+BERT,industry,Law Practice,6,0,0.0,0.0,0.0
+BERT,industry,Legal Services,48,0,0.0,0.0,0.0
+BERT,industry,"Leisure, Travel & Tourism",31,9,1.0,1.0,1.0
+BERT,industry,Logistics and Supply Chain,57,0,0.0,0.0,0.0
+BERT,industry,Luxury Goods & Jewelry,3,0,0.0,0.0,0.0
+BERT,industry,Machinery,13,0,0.0,0.0,0.0
+BERT,industry,Management Consulting,56,4,1.0,1.0,1.0
+BERT,industry,Maritime,1,0,0.0,0.0,0.0
+BERT,industry,Market Research,23,0,0.0,0.0,0.0
+BERT,industry,Marketing and Advertising,358,27,1.0,0.8148148148148148,0.8979591836734694
+BERT,industry,Mechanical or Industrial Engineering,12,2,1.0,1.0,1.0
+BERT,industry,Media Production,28,2,1.0,1.0,1.0
+BERT,industry,Medical Devices,7,1,1.0,1.0,1.0
+BERT,industry,Medical Practice,26,2,0.0,0.0,0.0
+BERT,industry,Mental Health Care,9,0,0.0,0.0,0.0
+BERT,industry,Mining & Metals,2,0,0.0,0.0,0.0
+BERT,industry,Motion Pictures and Film,4,0,0.0,0.0,0.0
+BERT,industry,Music,5,0,0.0,0.0,0.0
+BERT,industry,Nonprofit Organization Management,45,0,0.0,0.0,0.0
+BERT,industry,Oil & Energy,138,53,0.9591836734693877,0.8867924528301887,0.9215686274509803
+BERT,industry,Online Media,39,2,0.0,0.0,0.0
+BERT,industry,Outsourcing/Offshoring,7,1,1.0,1.0,1.0
+BERT,industry,Package/Freight Delivery,2,0,0.0,0.0,0.0
+BERT,industry,Packaging and Containers,2,0,0.0,0.0,0.0
+BERT,industry,Performing Arts,1,0,0.0,0.0,0.0
+BERT,industry,Pharmaceuticals,22,0,0.0,0.0,0.0
+BERT,industry,Philanthropy,2,0,0.0,0.0,0.0
+BERT,industry,Photography,2,0,0.0,0.0,0.0
+BERT,industry,Plastics,2,0,0.0,0.0,0.0
+BERT,industry,Primary/Secondary Education,2,0,0.0,0.0,0.0
+BERT,industry,Printing,14,0,0.0,0.0,0.0
+BERT,industry,Professional Training & Coaching,4,0,0.0,0.0,0.0
+BERT,industry,Program Development,3,0,0.0,0.0,0.0
+BERT,industry,Public Policy,3,0,0.0,0.0,0.0
+BERT,industry,Public Relations and Communications,36,0,0.0,0.0,0.0
+BERT,industry,Public Safety,4,2,1.0,1.0,1.0
+BERT,industry,Publishing,23,0,0.0,0.0,0.0
+BERT,industry,Real Estate,67,10,1.0,1.0,1.0
+BERT,industry,Religious Institutions,5,0,0.0,0.0,0.0
+BERT,industry,Renewables & Environment,5,0,0.0,0.0,0.0
+BERT,industry,Research,16,0,0.0,0.0,0.0
+BERT,industry,Restaurants,20,0,0.0,0.0,0.0
+BERT,industry,Retail,112,3,1.0,1.0,1.0
+BERT,industry,Security and Investigations,16,1,1.0,1.0,1.0
+BERT,industry,Semiconductors,3,0,0.0,0.0,0.0
+BERT,industry,Shipbuilding,1,0,0.0,0.0,0.0
+BERT,industry,Sports,9,0,0.0,0.0,0.0
+BERT,industry,Staffing and Recruiting,55,3,1.0,1.0,1.0
+BERT,industry,Telecommunications,176,12,1.0,0.9166666666666666,0.9565217391304348
+BERT,industry,Textiles,2,0,0.0,0.0,0.0
+BERT,industry,Translation and Localization,3,0,0.0,0.0,0.0
+BERT,industry,Transportation/Trucking/Railroad,24,1,1.0,1.0,1.0
+BERT,industry,Utilities,15,0,0.0,0.0,0.0
+BERT,industry,Venture Capital & Private Equity,12,0,0.0,0.0,0.0
+BERT,industry,Veterinary,2,0,0.0,0.0,0.0
+BERT,industry,Warehousing,17,0,0.0,0.0,0.0
+BERT,industry,Wholesale,9,1,0.0,0.0,0.0
+BERT,industry,Wine and Spirits,1,0,0.0,0.0,0.0
+BERT,industry,Wireless,2,0,0.0,0.0,0.0
+BERT,industry,Writing and Editing,5,0,0.0,0.0,0.0
+BERT,industry,nan,2158,118,0.9142857142857143,0.8135593220338984,0.8609865470852018
+BERT,function,Accounting/Auditing,99,12,0.6153846153846154,0.6666666666666666,0.64
+BERT,function,Administrative,262,34,0.9393939393939394,0.9117647058823529,0.9253731343283582
+BERT,function,Advertising,35,2,1.0,1.0,1.0
+BERT,function,Art/Creative,50,0,0.0,0.0,0.0
+BERT,function,Business Analyst,37,1,1.0,1.0,1.0
+BERT,function,Business Development,99,5,1.0,1.0,1.0
+BERT,function,Consulting,59,2,1.0,1.0,1.0
+BERT,function,Customer Service,616,36,0.9393939393939394,0.8611111111111112,0.8985507246376812
+BERT,function,Data Analyst,41,1,0.0,0.0,0.0
+BERT,function,Design,146,1,0.0,0.0,0.0
+BERT,function,Distribution,14,0,0.0,0.0,0.0
+BERT,function,Education,131,0,0.0,0.0,0.0
+BERT,function,Engineering,629,63,0.9827586206896551,0.9047619047619048,0.9421487603305785
+BERT,function,Finance,82,14,1.0,0.7142857142857143,0.8333333333333334
+BERT,function,Financial Analyst,13,2,1.0,0.5,0.6666666666666666
+BERT,function,General Business,26,1,1.0,1.0,1.0
+BERT,function,Health Care Provider,162,1,0.0,0.0,0.0
+BERT,function,Human Resources,94,6,0.6666666666666666,0.3333333333333333,0.4444444444444444
+BERT,function,Information Technology,787,13,1.0,0.7692307692307693,0.8695652173913043
+BERT,function,Legal,25,0,0.0,0.0,0.0
+BERT,function,Management,141,0,0.0,0.0,0.0
+BERT,function,Manufacturing,40,2,0.6666666666666666,1.0,0.8
+BERT,function,Marketing,362,4,1.0,0.5,0.6666666666666666
+BERT,function,Other,159,17,1.0,1.0,1.0
+BERT,function,Product Management,43,0,0.0,0.0,0.0
+BERT,function,Production,62,0,0.0,0.0,0.0
+BERT,function,Project Management,84,2,1.0,0.5,0.6666666666666666
+BERT,function,Public Relations,35,2,1.0,1.0,1.0
+BERT,function,Purchasing,8,0,0.0,0.0,0.0
+BERT,function,Quality Assurance,56,0,0.0,0.0,0.0
+BERT,function,Research,19,0,0.0,0.0,0.0
+BERT,function,Sales,677,18,1.0,0.6111111111111112,0.7586206896551724
+BERT,function,Science,9,0,0.0,0.0,0.0
+BERT,function,Strategy/Planning,24,0,0.0,0.0,0.0
+BERT,function,Supply Chain,20,0,0.0,0.0,0.0
+BERT,function,Training,14,0,0.0,0.0,0.0
+BERT,function,Writing/Editing,60,0,0.0,0.0,0.0
+BERT,function,nan,2826,151,0.9259259259259259,0.8278145695364238,0.8741258741258742
+ALBERT,telecommuting,0,7670,361,0.8837920489296636,0.8005540166204986,0.8401162790697675
+ALBERT,telecommuting,1,376,29,0.92,0.7931034482758621,0.8518518518518519
+ALBERT,has_company_logo,0,1630,242,0.8380952380952381,0.7272727272727273,0.7787610619469026
+ALBERT,has_company_logo,1,6416,148,0.9577464788732394,0.918918918918919,0.9379310344827586
+ALBERT,has_questions,0,4110,261,0.9008620689655172,0.8007662835249042,0.847870182555781
+ALBERT,has_questions,1,3936,129,0.8583333333333333,0.7984496124031008,0.8273092369477911
+ALBERT,employment_type,Contract,667,17,0.8888888888888888,0.47058823529411764,0.6153846153846154
+ALBERT,employment_type,Full-time,5240,230,0.9158878504672897,0.8521739130434782,0.8828828828828829
+ALBERT,employment_type,Other,90,4,1.0,0.5,0.6666666666666666
+ALBERT,employment_type,Part-time,396,36,0.8387096774193549,0.7222222222222222,0.7761194029850746
+ALBERT,employment_type,Temporary,104,1,0.0,0.0,0.0
+ALBERT,employment_type,nan,1549,102,0.8421052631578947,0.7843137254901961,0.8121827411167513
+ALBERT,required_experience,Associate,1042,20,0.8333333333333334,0.75,0.7894736842105263
+ALBERT,required_experience,Director,180,10,1.0,0.8,0.8888888888888888
+ALBERT,required_experience,Entry level,1257,82,0.8918918918918919,0.8048780487804879,0.8461538461538461
+ALBERT,required_experience,Executive,72,7,1.0,1.0,1.0
+ALBERT,required_experience,Internship,177,4,0.0,0.0,0.0
+ALBERT,required_experience,Mid-Senior level,1746,48,0.9772727272727273,0.8958333333333334,0.9347826086956522
+ALBERT,required_experience,Not Applicable,479,28,0.7916666666666666,0.6785714285714286,0.7307692307692307
+ALBERT,required_experience,nan,3093,191,0.8700564971751412,0.806282722513089,0.8369565217391305
+ALBERT,industry,Accounting,69,25,0.9523809523809523,0.8,0.8695652173913043
+ALBERT,industry,Airlines/Aviation,29,0,0.0,0.0,0.0
+ALBERT,industry,Animation,1,0,0.0,0.0,0.0
+ALBERT,industry,Apparel & Fashion,48,0,0.0,0.0,0.0
+ALBERT,industry,Architecture & Planning,6,0,0.0,0.0,0.0
+ALBERT,industry,Automotive,61,1,1.0,1.0,1.0
+ALBERT,industry,Aviation & Aerospace,8,0,0.0,0.0,0.0
+ALBERT,industry,Banking,41,3,1.0,0.3333333333333333,0.5
+ALBERT,industry,Biotechnology,19,2,0.6666666666666666,1.0,0.8
+ALBERT,industry,Broadcast Media,30,0,0.0,0.0,0.0
+ALBERT,industry,Building Materials,35,0,0.0,0.0,0.0
+ALBERT,industry,Business Supplies and Equipment,13,3,1.0,1.0,1.0
+ALBERT,industry,Capital Markets,1,0,0.0,0.0,0.0
+ALBERT,industry,Chemicals,8,0,0.0,0.0,0.0
+ALBERT,industry,Civic & Social Organization,19,3,1.0,0.3333333333333333,0.5
+ALBERT,industry,Civil Engineering,2,1,1.0,1.0,1.0
+ALBERT,industry,Commercial Real Estate,1,0,0.0,0.0,0.0
+ALBERT,industry,Computer & Network Security,24,4,1.0,0.75,0.8571428571428571
+ALBERT,industry,Computer Games,41,0,0.0,0.0,0.0
+ALBERT,industry,Computer Hardware,14,0,0.0,0.0,0.0
+ALBERT,industry,Computer Networking,14,5,1.0,1.0,1.0
+ALBERT,industry,Computer Software,644,1,0.0,0.0,0.0
+ALBERT,industry,Construction,64,1,0.0,0.0,0.0
+ALBERT,industry,Consumer Electronics,31,0,0.0,0.0,0.0
+ALBERT,industry,Consumer Goods,29,0,0.0,0.0,0.0
+ALBERT,industry,Consumer Services,177,15,0.7857142857142857,0.7333333333333333,0.7586206896551724
+ALBERT,industry,Cosmetics,25,0,0.0,0.0,0.0
+ALBERT,industry,Defense & Space,3,0,0.0,0.0,0.0
+ALBERT,industry,Design,59,2,0.0,0.0,0.0
+ALBERT,industry,E-Learning,73,1,0.0,0.0,0.0
+ALBERT,industry,Education Management,337,0,0.0,0.0,0.0
+ALBERT,industry,Electrical/Electronic Manufacturing,33,1,1.0,1.0,1.0
+ALBERT,industry,Entertainment,36,1,1.0,1.0,1.0
+ALBERT,industry,Environmental Services,19,1,1.0,1.0,1.0
+ALBERT,industry,Events Services,13,0,0.0,0.0,0.0
+ALBERT,industry,Executive Office,2,0,0.0,0.0,0.0
+ALBERT,industry,Facilities Services,48,0,0.0,0.0,0.0
+ALBERT,industry,Farming,11,0,0.0,0.0,0.0
+ALBERT,industry,Financial Services,357,13,0.9166666666666666,0.8461538461538461,0.88
+ALBERT,industry,Fishery,2,0,0.0,0.0,0.0
+ALBERT,industry,Food & Beverages,32,0,0.0,0.0,0.0
+ALBERT,industry,Food Production,20,0,0.0,0.0,0.0
+ALBERT,industry,Fund-Raising,9,0,0.0,0.0,0.0
+ALBERT,industry,Furniture,2,0,0.0,0.0,0.0
+ALBERT,industry,Gambling & Casinos,26,0,0.0,0.0,0.0
+ALBERT,industry,Government Administration,16,0,0.0,0.0,0.0
+ALBERT,industry,Government Relations,5,0,0.0,0.0,0.0
+ALBERT,industry,Graphic Design,14,0,0.0,0.0,0.0
+ALBERT,industry,"Health, Wellness and Fitness",56,9,1.0,0.8888888888888888,0.9411764705882353
+ALBERT,industry,Higher Education,4,0,0.0,0.0,0.0
+ALBERT,industry,Hospital & Health Care,220,17,1.0,0.9411764705882353,0.9696969696969697
+ALBERT,industry,Hospitality,44,8,1.0,0.75,0.8571428571428571
+ALBERT,industry,Human Resources,48,3,1.0,0.3333333333333333,0.5
+ALBERT,industry,Import and Export,2,0,0.0,0.0,0.0
+ALBERT,industry,Individual & Family Services,4,0,0.0,0.0,0.0
+ALBERT,industry,Information Services,17,1,1.0,1.0,1.0
+ALBERT,industry,Information Technology and Services,750,13,0.9,0.6923076923076923,0.782608695652174
+ALBERT,industry,Insurance,64,1,0.5,1.0,0.6666666666666666
+ALBERT,industry,International Trade and Development,4,0,0.0,0.0,0.0
+ALBERT,industry,Internet,477,0,0.0,0.0,0.0
+ALBERT,industry,Investment Banking,2,0,0.0,0.0,0.0
+ALBERT,industry,Investment Management,3,1,0.0,0.0,0.0
+ALBERT,industry,Law Enforcement,5,0,0.0,0.0,0.0
+ALBERT,industry,Law Practice,6,0,0.0,0.0,0.0
+ALBERT,industry,Legal Services,48,0,0.0,0.0,0.0
+ALBERT,industry,"Leisure, Travel & Tourism",31,9,1.0,1.0,1.0
+ALBERT,industry,Logistics and Supply Chain,57,0,0.0,0.0,0.0
+ALBERT,industry,Luxury Goods & Jewelry,3,0,0.0,0.0,0.0
+ALBERT,industry,Machinery,13,0,0.0,0.0,0.0
+ALBERT,industry,Management Consulting,56,4,1.0,1.0,1.0
+ALBERT,industry,Maritime,1,0,0.0,0.0,0.0
+ALBERT,industry,Market Research,23,0,0.0,0.0,0.0
+ALBERT,industry,Marketing and Advertising,358,27,1.0,0.8148148148148148,0.8979591836734694
+ALBERT,industry,Mechanical or Industrial Engineering,12,2,1.0,1.0,1.0
+ALBERT,industry,Media Production,28,2,1.0,1.0,1.0
+ALBERT,industry,Medical Devices,7,1,1.0,1.0,1.0
+ALBERT,industry,Medical Practice,26,2,0.0,0.0,0.0
+ALBERT,industry,Mental Health Care,9,0,0.0,0.0,0.0
+ALBERT,industry,Mining & Metals,2,0,0.0,0.0,0.0
+ALBERT,industry,Motion Pictures and Film,4,0,0.0,0.0,0.0
+ALBERT,industry,Music,5,0,0.0,0.0,0.0
+ALBERT,industry,Nonprofit Organization Management,45,0,0.0,0.0,0.0
+ALBERT,industry,Oil & Energy,138,53,0.9782608695652174,0.8490566037735849,0.9090909090909091
+ALBERT,industry,Online Media,39,2,0.0,0.0,0.0
+ALBERT,industry,Outsourcing/Offshoring,7,1,1.0,1.0,1.0
+ALBERT,industry,Package/Freight Delivery,2,0,0.0,0.0,0.0
+ALBERT,industry,Packaging and Containers,2,0,0.0,0.0,0.0
+ALBERT,industry,Performing Arts,1,0,0.0,0.0,0.0
+ALBERT,industry,Pharmaceuticals,22,0,0.0,0.0,0.0
+ALBERT,industry,Philanthropy,2,0,0.0,0.0,0.0
+ALBERT,industry,Photography,2,0,0.0,0.0,0.0
+ALBERT,industry,Plastics,2,0,0.0,0.0,0.0
+ALBERT,industry,Primary/Secondary Education,2,0,0.0,0.0,0.0
+ALBERT,industry,Printing,14,0,0.0,0.0,0.0
+ALBERT,industry,Professional Training & Coaching,4,0,0.0,0.0,0.0
+ALBERT,industry,Program Development,3,0,0.0,0.0,0.0
+ALBERT,industry,Public Policy,3,0,0.0,0.0,0.0
+ALBERT,industry,Public Relations and Communications,36,0,0.0,0.0,0.0
+ALBERT,industry,Public Safety,4,2,1.0,1.0,1.0
+ALBERT,industry,Publishing,23,0,0.0,0.0,0.0
+ALBERT,industry,Real Estate,67,10,0.9090909090909091,1.0,0.9523809523809523
+ALBERT,industry,Religious Institutions,5,0,0.0,0.0,0.0
+ALBERT,industry,Renewables & Environment,5,0,0.0,0.0,0.0
+ALBERT,industry,Research,16,0,0.0,0.0,0.0
+ALBERT,industry,Restaurants,20,0,0.0,0.0,0.0
+ALBERT,industry,Retail,112,3,0.6666666666666666,0.6666666666666666,0.6666666666666666
+ALBERT,industry,Security and Investigations,16,1,1.0,1.0,1.0
+ALBERT,industry,Semiconductors,3,0,0.0,0.0,0.0
+ALBERT,industry,Shipbuilding,1,0,0.0,0.0,0.0
+ALBERT,industry,Sports,9,0,0.0,0.0,0.0
+ALBERT,industry,Staffing and Recruiting,55,3,1.0,1.0,1.0
+ALBERT,industry,Telecommunications,176,12,1.0,0.75,0.8571428571428571
+ALBERT,industry,Textiles,2,0,0.0,0.0,0.0
+ALBERT,industry,Translation and Localization,3,0,0.0,0.0,0.0
+ALBERT,industry,Transportation/Trucking/Railroad,24,1,1.0,1.0,1.0
+ALBERT,industry,Utilities,15,0,0.0,0.0,0.0
+ALBERT,industry,Venture Capital & Private Equity,12,0,0.0,0.0,0.0
+ALBERT,industry,Veterinary,2,0,0.0,0.0,0.0
+ALBERT,industry,Warehousing,17,0,0.0,0.0,0.0
+ALBERT,industry,Wholesale,9,1,0.0,0.0,0.0
+ALBERT,industry,Wine and Spirits,1,0,0.0,0.0,0.0
+ALBERT,industry,Wireless,2,0,0.0,0.0,0.0
+ALBERT,industry,Writing and Editing,5,0,0.0,0.0,0.0
+ALBERT,industry,nan,2158,118,0.8245614035087719,0.7966101694915254,0.8103448275862069
+ALBERT,function,Accounting/Auditing,99,12,0.75,0.75,0.75
+ALBERT,function,Administrative,262,34,0.8571428571428571,0.8823529411764706,0.8695652173913043
+ALBERT,function,Advertising,35,2,1.0,1.0,1.0
+ALBERT,function,Art/Creative,50,0,0.0,0.0,0.0
+ALBERT,function,Business Analyst,37,1,1.0,1.0,1.0
+ALBERT,function,Business Development,99,5,1.0,1.0,1.0
+ALBERT,function,Consulting,59,2,1.0,1.0,1.0
+ALBERT,function,Customer Service,616,36,0.9655172413793104,0.7777777777777778,0.8615384615384616
+ALBERT,function,Data Analyst,41,1,1.0,1.0,1.0
+ALBERT,function,Design,146,1,0.0,0.0,0.0
+ALBERT,function,Distribution,14,0,0.0,0.0,0.0
+ALBERT,function,Education,131,0,0.0,0.0,0.0
+ALBERT,function,Engineering,629,63,0.9821428571428571,0.873015873015873,0.9243697478991597
+ALBERT,function,Finance,82,14,1.0,0.6428571428571429,0.782608695652174
+ALBERT,function,Financial Analyst,13,2,1.0,1.0,1.0
+ALBERT,function,General Business,26,1,0.0,0.0,0.0
+ALBERT,function,Health Care Provider,162,1,0.0,0.0,0.0
+ALBERT,function,Human Resources,94,6,0.6666666666666666,0.3333333333333333,0.4444444444444444
+ALBERT,function,Information Technology,787,13,1.0,0.7692307692307693,0.8695652173913043
+ALBERT,function,Legal,25,0,0.0,0.0,0.0
+ALBERT,function,Management,141,0,0.0,0.0,0.0
+ALBERT,function,Manufacturing,40,2,0.6666666666666666,1.0,0.8
+ALBERT,function,Marketing,362,4,1.0,0.5,0.6666666666666666
+ALBERT,function,Other,159,17,0.9444444444444444,1.0,0.9714285714285714
+ALBERT,function,Product Management,43,0,0.0,0.0,0.0
+ALBERT,function,Production,62,0,0.0,0.0,0.0
+ALBERT,function,Project Management,84,2,0.0,0.0,0.0
+ALBERT,function,Public Relations,35,2,0.6666666666666666,1.0,0.8
+ALBERT,function,Purchasing,8,0,0.0,0.0,0.0
+ALBERT,function,Quality Assurance,56,0,0.0,0.0,0.0
+ALBERT,function,Research,19,0,0.0,0.0,0.0
+ALBERT,function,Sales,677,18,0.8461538461538461,0.6111111111111112,0.7096774193548387
+ALBERT,function,Science,9,0,0.0,0.0,0.0
+ALBERT,function,Strategy/Planning,24,0,0.0,0.0,0.0
+ALBERT,function,Supply Chain,20,0,0.0,0.0,0.0
+ALBERT,function,Training,14,0,0.0,0.0,0.0
+ALBERT,function,Writing/Editing,60,0,0.0,0.0,0.0
+ALBERT,function,nan,2826,151,0.8356164383561644,0.8079470198675497,0.8215488215488216
+RoBERTa,telecommuting,0,7670,361,0.8685714285714285,0.8421052631578947,0.8551336146272855
+RoBERTa,telecommuting,1,376,29,0.8214285714285714,0.7931034482758621,0.8070175438596491
+RoBERTa,has_company_logo,0,1630,242,0.8232758620689655,0.7892561983471075,0.8059071729957806
+RoBERTa,has_company_logo,1,6416,148,0.9315068493150684,0.918918918918919,0.9251700680272109
+RoBERTa,has_questions,0,4110,261,0.87109375,0.8544061302681992,0.8626692456479691
+RoBERTa,has_questions,1,3936,129,0.8524590163934426,0.8062015503875969,0.8286852589641435
+RoBERTa,employment_type,Contract,667,17,0.6,0.5294117647058824,0.5625
+RoBERTa,employment_type,Full-time,5240,230,0.8913043478260869,0.8913043478260869,0.8913043478260869
+RoBERTa,employment_type,Other,90,4,1.0,0.5,0.6666666666666666
+RoBERTa,employment_type,Part-time,396,36,0.8484848484848485,0.7777777777777778,0.8115942028985508
+RoBERTa,employment_type,Temporary,104,1,0.0,0.0,0.0
+RoBERTa,employment_type,nan,1549,102,0.8469387755102041,0.8137254901960784,0.83
+RoBERTa,required_experience,Associate,1042,20,0.8823529411764706,0.75,0.8108108108108109
+RoBERTa,required_experience,Director,180,10,0.8888888888888888,0.8,0.8421052631578947
+RoBERTa,required_experience,Entry level,1257,82,0.8589743589743589,0.8170731707317073,0.8375
+RoBERTa,required_experience,Executive,72,7,1.0,1.0,1.0
+RoBERTa,required_experience,Internship,177,4,1.0,0.75,0.8571428571428571
+RoBERTa,required_experience,Mid-Senior level,1746,48,0.8627450980392157,0.9166666666666666,0.8888888888888888
+RoBERTa,required_experience,Not Applicable,479,28,0.8,0.7142857142857143,0.7547169811320755
+RoBERTa,required_experience,nan,3093,191,0.8670212765957447,0.8534031413612565,0.8601583113456465
+RoBERTa,industry,Accounting,69,25,0.9130434782608695,0.84,0.875
+RoBERTa,industry,Airlines/Aviation,29,0,0.0,0.0,0.0
+RoBERTa,industry,Animation,1,0,0.0,0.0,0.0
+RoBERTa,industry,Apparel & Fashion,48,0,0.0,0.0,0.0
+RoBERTa,industry,Architecture & Planning,6,0,0.0,0.0,0.0
+RoBERTa,industry,Automotive,61,1,1.0,1.0,1.0
+RoBERTa,industry,Aviation & Aerospace,8,0,0.0,0.0,0.0
+RoBERTa,industry,Banking,41,3,1.0,0.6666666666666666,0.8
+RoBERTa,industry,Biotechnology,19,2,1.0,1.0,1.0
+RoBERTa,industry,Broadcast Media,30,0,0.0,0.0,0.0
+RoBERTa,industry,Building Materials,35,0,0.0,0.0,0.0
+RoBERTa,industry,Business Supplies and Equipment,13,3,0.75,1.0,0.8571428571428571
+RoBERTa,industry,Capital Markets,1,0,0.0,0.0,0.0
+RoBERTa,industry,Chemicals,8,0,0.0,0.0,0.0
+RoBERTa,industry,Civic & Social Organization,19,3,1.0,0.3333333333333333,0.5
+RoBERTa,industry,Civil Engineering,2,1,1.0,1.0,1.0
+RoBERTa,industry,Commercial Real Estate,1,0,0.0,0.0,0.0
+RoBERTa,industry,Computer & Network Security,24,4,1.0,1.0,1.0
+RoBERTa,industry,Computer Games,41,0,0.0,0.0,0.0
+RoBERTa,industry,Computer Hardware,14,0,0.0,0.0,0.0
+RoBERTa,industry,Computer Networking,14,5,1.0,0.8,0.8888888888888888
+RoBERTa,industry,Computer Software,644,1,0.25,1.0,0.4
+RoBERTa,industry,Construction,64,1,1.0,1.0,1.0
+RoBERTa,industry,Consumer Electronics,31,0,0.0,0.0,0.0
+RoBERTa,industry,Consumer Goods,29,0,0.0,0.0,0.0
+RoBERTa,industry,Consumer Services,177,15,0.7333333333333333,0.7333333333333333,0.7333333333333333
+RoBERTa,industry,Cosmetics,25,0,0.0,0.0,0.0
+RoBERTa,industry,Defense & Space,3,0,0.0,0.0,0.0
+RoBERTa,industry,Design,59,2,0.0,0.0,0.0
+RoBERTa,industry,E-Learning,73,1,0.0,0.0,0.0
+RoBERTa,industry,Education Management,337,0,0.0,0.0,0.0
+RoBERTa,industry,Electrical/Electronic Manufacturing,33,1,1.0,1.0,1.0
+RoBERTa,industry,Entertainment,36,1,1.0,1.0,1.0
+RoBERTa,industry,Environmental Services,19,1,1.0,1.0,1.0
+RoBERTa,industry,Events Services,13,0,0.0,0.0,0.0
+RoBERTa,industry,Executive Office,2,0,0.0,0.0,0.0
+RoBERTa,industry,Facilities Services,48,0,0.0,0.0,0.0
+RoBERTa,industry,Farming,11,0,0.0,0.0,0.0
+RoBERTa,industry,Financial Services,357,13,0.9230769230769231,0.9230769230769231,0.9230769230769231
+RoBERTa,industry,Fishery,2,0,0.0,0.0,0.0
+RoBERTa,industry,Food & Beverages,32,0,0.0,0.0,0.0
+RoBERTa,industry,Food Production,20,0,0.0,0.0,0.0
+RoBERTa,industry,Fund-Raising,9,0,0.0,0.0,0.0
+RoBERTa,industry,Furniture,2,0,0.0,0.0,0.0
+RoBERTa,industry,Gambling & Casinos,26,0,0.0,0.0,0.0
+RoBERTa,industry,Government Administration,16,0,0.0,0.0,0.0
+RoBERTa,industry,Government Relations,5,0,0.0,0.0,0.0
+RoBERTa,industry,Graphic Design,14,0,0.0,0.0,0.0
+RoBERTa,industry,"Health, Wellness and Fitness",56,9,0.9,1.0,0.9473684210526315
+RoBERTa,industry,Higher Education,4,0,0.0,0.0,0.0
+RoBERTa,industry,Hospital & Health Care,220,17,1.0,0.8823529411764706,0.9375
+RoBERTa,industry,Hospitality,44,8,1.0,0.75,0.8571428571428571
+RoBERTa,industry,Human Resources,48,3,1.0,0.6666666666666666,0.8
+RoBERTa,industry,Import and Export,2,0,0.0,0.0,0.0
+RoBERTa,industry,Individual & Family Services,4,0,0.0,0.0,0.0
+RoBERTa,industry,Information Services,17,1,1.0,1.0,1.0
+RoBERTa,industry,Information Technology and Services,750,13,0.75,0.6923076923076923,0.72
+RoBERTa,industry,Insurance,64,1,0.5,1.0,0.6666666666666666
+RoBERTa,industry,International Trade and Development,4,0,0.0,0.0,0.0
+RoBERTa,industry,Internet,477,0,0.0,0.0,0.0
+RoBERTa,industry,Investment Banking,2,0,0.0,0.0,0.0
+RoBERTa,industry,Investment Management,3,1,0.0,0.0,0.0
+RoBERTa,industry,Law Enforcement,5,0,0.0,0.0,0.0
+RoBERTa,industry,Law Practice,6,0,0.0,0.0,0.0
+RoBERTa,industry,Legal Services,48,0,0.0,0.0,0.0
+RoBERTa,industry,"Leisure, Travel & Tourism",31,9,1.0,1.0,1.0
+RoBERTa,industry,Logistics and Supply Chain,57,0,0.0,0.0,0.0
+RoBERTa,industry,Luxury Goods & Jewelry,3,0,0.0,0.0,0.0
+RoBERTa,industry,Machinery,13,0,0.0,0.0,0.0
+RoBERTa,industry,Management Consulting,56,4,1.0,1.0,1.0
+RoBERTa,industry,Maritime,1,0,0.0,0.0,0.0
+RoBERTa,industry,Market Research,23,0,0.0,0.0,0.0
+RoBERTa,industry,Marketing and Advertising,358,27,0.9166666666666666,0.8148148148148148,0.8627450980392157
+RoBERTa,industry,Mechanical or Industrial Engineering,12,2,1.0,1.0,1.0
+RoBERTa,industry,Media Production,28,2,1.0,1.0,1.0
+RoBERTa,industry,Medical Devices,7,1,0.5,1.0,0.6666666666666666
+RoBERTa,industry,Medical Practice,26,2,0.0,0.0,0.0
+RoBERTa,industry,Mental Health Care,9,0,0.0,0.0,0.0
+RoBERTa,industry,Mining & Metals,2,0,0.0,0.0,0.0
+RoBERTa,industry,Motion Pictures and Film,4,0,0.0,0.0,0.0
+RoBERTa,industry,Music,5,0,0.0,0.0,0.0
+RoBERTa,industry,Nonprofit Organization Management,45,0,0.0,0.0,0.0
+RoBERTa,industry,Oil & Energy,138,53,0.9411764705882353,0.9056603773584906,0.9230769230769231
+RoBERTa,industry,Online Media,39,2,0.0,0.0,0.0
+RoBERTa,industry,Outsourcing/Offshoring,7,1,1.0,1.0,1.0
+RoBERTa,industry,Package/Freight Delivery,2,0,0.0,0.0,0.0
+RoBERTa,industry,Packaging and Containers,2,0,0.0,0.0,0.0
+RoBERTa,industry,Performing Arts,1,0,0.0,0.0,0.0
+RoBERTa,industry,Pharmaceuticals,22,0,0.0,0.0,0.0
+RoBERTa,industry,Philanthropy,2,0,0.0,0.0,0.0
+RoBERTa,industry,Photography,2,0,0.0,0.0,0.0
+RoBERTa,industry,Plastics,2,0,0.0,0.0,0.0
+RoBERTa,industry,Primary/Secondary Education,2,0,0.0,0.0,0.0
+RoBERTa,industry,Printing,14,0,0.0,0.0,0.0
+RoBERTa,industry,Professional Training & Coaching,4,0,0.0,0.0,0.0
+RoBERTa,industry,Program Development,3,0,0.0,0.0,0.0
+RoBERTa,industry,Public Policy,3,0,0.0,0.0,0.0
+RoBERTa,industry,Public Relations and Communications,36,0,0.0,0.0,0.0
+RoBERTa,industry,Public Safety,4,2,1.0,1.0,1.0
+RoBERTa,industry,Publishing,23,0,0.0,0.0,0.0
+RoBERTa,industry,Real Estate,67,10,1.0,1.0,1.0
+RoBERTa,industry,Religious Institutions,5,0,0.0,0.0,0.0
+RoBERTa,industry,Renewables & Environment,5,0,0.0,0.0,0.0
+RoBERTa,industry,Research,16,0,0.0,0.0,0.0
+RoBERTa,industry,Restaurants,20,0,0.0,0.0,0.0
+RoBERTa,industry,Retail,112,3,1.0,1.0,1.0
+RoBERTa,industry,Security and Investigations,16,1,1.0,1.0,1.0
+RoBERTa,industry,Semiconductors,3,0,0.0,0.0,0.0
+RoBERTa,industry,Shipbuilding,1,0,0.0,0.0,0.0
+RoBERTa,industry,Sports,9,0,0.0,0.0,0.0
+RoBERTa,industry,Staffing and Recruiting,55,3,1.0,1.0,1.0
+RoBERTa,industry,Telecommunications,176,12,0.8461538461538461,0.9166666666666666,0.88
+RoBERTa,industry,Textiles,2,0,0.0,0.0,0.0
+RoBERTa,industry,Translation and Localization,3,0,0.0,0.0,0.0
+RoBERTa,industry,Transportation/Trucking/Railroad,24,1,1.0,1.0,1.0
+RoBERTa,industry,Utilities,15,0,0.0,0.0,0.0
+RoBERTa,industry,Venture Capital & Private Equity,12,0,0.0,0.0,0.0
+RoBERTa,industry,Veterinary,2,0,0.0,0.0,0.0
+RoBERTa,industry,Warehousing,17,0,0.0,0.0,0.0
+RoBERTa,industry,Wholesale,9,1,0.0,0.0,0.0
+RoBERTa,industry,Wine and Spirits,1,0,0.0,0.0,0.0
+RoBERTa,industry,Wireless,2,0,0.0,0.0,0.0
+RoBERTa,industry,Writing and Editing,5,0,0.0,0.0,0.0
+RoBERTa,industry,nan,2158,118,0.8362068965517241,0.8220338983050848,0.8290598290598291
+RoBERTa,function,Accounting/Auditing,99,12,0.6923076923076923,0.75,0.72
+RoBERTa,function,Administrative,262,34,0.8888888888888888,0.9411764705882353,0.9142857142857143
+RoBERTa,function,Advertising,35,2,1.0,1.0,1.0
+RoBERTa,function,Art/Creative,50,0,0.0,0.0,0.0
+RoBERTa,function,Business Analyst,37,1,1.0,1.0,1.0
+RoBERTa,function,Business Development,99,5,1.0,1.0,1.0
+RoBERTa,function,Consulting,59,2,1.0,1.0,1.0
+RoBERTa,function,Customer Service,616,36,0.8529411764705882,0.8055555555555556,0.8285714285714286
+RoBERTa,function,Data Analyst,41,1,1.0,1.0,1.0
+RoBERTa,function,Design,146,1,0.0,0.0,0.0
+RoBERTa,function,Distribution,14,0,0.0,0.0,0.0
+RoBERTa,function,Education,131,0,0.0,0.0,0.0
+RoBERTa,function,Engineering,629,63,0.9672131147540983,0.9365079365079365,0.9516129032258065
+RoBERTa,function,Finance,82,14,1.0,0.7857142857142857,0.88
+RoBERTa,function,Financial Analyst,13,2,1.0,0.5,0.6666666666666666
+RoBERTa,function,General Business,26,1,1.0,1.0,1.0
+RoBERTa,function,Health Care Provider,162,1,0.0,0.0,0.0
+RoBERTa,function,Human Resources,94,6,1.0,0.5,0.6666666666666666
+RoBERTa,function,Information Technology,787,13,0.7142857142857143,0.7692307692307693,0.7407407407407407
+RoBERTa,function,Legal,25,0,0.0,0.0,0.0
+RoBERTa,function,Management,141,0,0.0,0.0,0.0
+RoBERTa,function,Manufacturing,40,2,0.6666666666666666,1.0,0.8
+RoBERTa,function,Marketing,362,4,1.0,0.5,0.6666666666666666
+RoBERTa,function,Other,159,17,1.0,0.9411764705882353,0.9696969696969697
+RoBERTa,function,Product Management,43,0,0.0,0.0,0.0
+RoBERTa,function,Production,62,0,0.0,0.0,0.0
+RoBERTa,function,Project Management,84,2,0.0,0.0,0.0
+RoBERTa,function,Public Relations,35,2,1.0,1.0,1.0
+RoBERTa,function,Purchasing,8,0,0.0,0.0,0.0
+RoBERTa,function,Quality Assurance,56,0,0.0,0.0,0.0
+RoBERTa,function,Research,19,0,0.0,0.0,0.0
+RoBERTa,function,Sales,677,18,0.7777777777777778,0.7777777777777778,0.7777777777777778
+RoBERTa,function,Science,9,0,0.0,0.0,0.0
+RoBERTa,function,Strategy/Planning,24,0,0.0,0.0,0.0
+RoBERTa,function,Supply Chain,20,0,0.0,0.0,0.0
+RoBERTa,function,Training,14,0,0.0,0.0,0.0
+RoBERTa,function,Writing/Editing,60,0,0.0,0.0,0.0
+RoBERTa,function,nan,2826,151,0.8278145695364238,0.8278145695364238,0.8278145695364238

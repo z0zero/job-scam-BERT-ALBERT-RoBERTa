@@ -1,0 +1,6 @@
+model_group,model_label,FN,FP,correct,total
+classical_baseline,TFIDF_LinearSVM,59,17,7970,8046
+classical_baseline,TFIDF_LogReg,54,54,7938,8046
+transformer,ALBERT,78,40,7928,8046
+transformer,BERT,69,23,7954,8046
+transformer,RoBERTa,63,51,7932,8046

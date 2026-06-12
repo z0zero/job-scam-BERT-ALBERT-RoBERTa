@@ -1,0 +1,16 @@
+seed,model_group,model_label,tuned_threshold,score_type
+42,classical_baseline,TFIDF_LogReg,0.59,probability
+42,classical_baseline,TFIDF_LinearSVM,0.0,decision_function
+42,transformer,BERT,0.72,probability
+42,transformer,ALBERT,0.23,probability
+42,transformer,RoBERTa,0.21,probability
+123,classical_baseline,TFIDF_LogReg,0.53,probability
+123,classical_baseline,TFIDF_LinearSVM,-0.03252485467300007,decision_function
+123,transformer,BERT,0.33,probability
+123,transformer,ALBERT,0.9,probability
+123,transformer,RoBERTa,0.18,probability
+2024,classical_baseline,TFIDF_LogReg,0.56,probability
+2024,classical_baseline,TFIDF_LinearSVM,0.0,decision_function
+2024,transformer,BERT,0.1,probability
+2024,transformer,ALBERT,0.24,probability
+2024,transformer,RoBERTa,0.57,probability
