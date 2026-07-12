@@ -1,6 +1,8 @@
 import streamlit as st
 from PIL import Image
 
+from src.models.auth_service import AuthenticatedUser
+
 class MainView:
     @staticmethod
     def setup_page():
@@ -41,6 +43,15 @@ class MainView:
         st.warning(message)
 
     @staticmethod
+    def render_sidebar(user: AuthenticatedUser) -> tuple[str, bool]:
+        with st.sidebar:
+            st.write(f"Signed in as **{user.full_name}**")
+            st.caption(user.email)
+            page = st.radio("Navigation", ["Analyze", "History"])
+            logout_clicked = st.button("Logout", use_container_width=True)
+        return page, logout_clicked
+
+    @staticmethod
     def render_input_section(on_image_uploaded=None):
         st.subheader("Input")
         input_mode = st.radio(
@@ -48,6 +59,8 @@ class MainView:
             ["Paste Text", "Upload Image"],
             horizontal=True,
         )
+
+        input_source = "text" if input_mode == "Paste Text" else "image"
 
         text = ""
         is_invalid = False
@@ -80,7 +93,7 @@ class MainView:
                         f"Please upload a smaller image."
                     )
                     is_invalid = True
-                    return "", is_invalid
+                    return "", input_source, is_invalid
 
                 image = Image.open(uploaded_file)
                 st.image(image, caption="Uploaded Image", use_container_width=True)
@@ -99,7 +112,7 @@ class MainView:
                             is_invalid = True
                         else:
                             st.caption(f"Word count: **{word_count}** / 1500 words")
-        return text, is_invalid
+        return text, input_source, is_invalid
 
     @staticmethod
     def render_result_section(is_disabled=False, on_analyze=None):
