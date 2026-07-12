@@ -1,0 +1,71 @@
+from collections.abc import MutableMapping
+from typing import Any
+
+from src.models.auth_service import AuthSession, AuthenticatedUser
+
+
+AUTH_STATE_KEY = "supabase_auth"
+RECOVERY_MODE_KEY = "supabase_recovery_mode"
+
+_AUTH_FIELDS = (
+    "user_id",
+    "email",
+    "full_name",
+    "access_token",
+    "refresh_token",
+)
+
+
+def save_auth_session(
+    state: MutableMapping[str, Any], session: AuthSession
+) -> None:
+    state[AUTH_STATE_KEY] = {
+        "user_id": session.user.id,
+        "email": session.user.email,
+        "full_name": session.user.full_name,
+        "access_token": session.access_token,
+        "refresh_token": session.refresh_token,
+    }
+
+
+def load_auth_session(
+    state: MutableMapping[str, Any],
+) -> AuthSession | None:
+    value = state.get(AUTH_STATE_KEY)
+    if not isinstance(value, dict):
+        return None
+    if not all(isinstance(value.get(field), str) for field in _AUTH_FIELDS):
+        return None
+    return AuthSession(
+        user=AuthenticatedUser(
+            id=value["user_id"],
+            email=value["email"],
+            full_name=value["full_name"],
+        ),
+        access_token=value["access_token"],
+        refresh_token=value["refresh_token"],
+    )
+
+
+def load_auth_tokens(
+    state: MutableMapping[str, Any],
+) -> tuple[str, str] | None:
+    session = load_auth_session(state)
+    if session is None:
+        return None
+    return session.access_token, session.refresh_token
+
+
+def mark_recovery_mode(
+    state: MutableMapping[str, Any], enabled: bool
+) -> None:
+    state[RECOVERY_MODE_KEY] = enabled
+
+
+def is_recovery_mode(state: MutableMapping[str, Any]) -> bool:
+    return state.get(RECOVERY_MODE_KEY) is True
+
+
+def clear_auth_state(state: MutableMapping[str, Any]) -> None:
+    state.pop(AUTH_STATE_KEY, None)
+    state.pop(RECOVERY_MODE_KEY, None)
