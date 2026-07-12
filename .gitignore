@@ -8,6 +8,7 @@ venv/
 *.log
 .claude/
 .worktrees/
+.superpowers/
 artifacts/*
 !artifacts/figures/
 !artifacts/figures/*.png
