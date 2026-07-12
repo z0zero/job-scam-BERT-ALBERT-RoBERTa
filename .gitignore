@@ -13,3 +13,4 @@ artifacts/*
 !artifacts/figures/
 !artifacts/figures/*.png
 *.zip
+.streamlit/secrets.toml
