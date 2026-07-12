@@ -2,8 +2,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 from src.controllers.app_controller import AppController
-from src.models.auth_service import AuthSession, AuthenticatedUser
-from src.models.history_repository import HistoryError
+from src.models.auth_service import AuthError, AuthSession, AuthenticatedUser
+from src.models.history_repository import HistoryError, HistoryPage
 from src.models.session_store import (
     is_recovery_mode,
     load_auth_tokens,
@@ -106,6 +106,79 @@ class AppControllerTests(unittest.TestCase):
         self.assertEqual(params, {})
         self.assertTrue(is_recovery_mode(state))
         self.classifier_loader.assert_not_called()
+
+    def test_recovery_rerun_restores_session_before_updating_password(self):
+        state = {}
+        callback_params = {"token_hash": "secret-token", "type": "recovery"}
+        callback_controller = self.build_controller(state, callback_params)
+        self.auth_service.verify_token.return_value = session()
+        self.auth_service.restore_session.return_value = session()
+        self.auth_view.render_recovery_form.return_value = None
+        callback_controller.run()
+
+        recovery_service = Mock()
+        recovery_service.restore_session.return_value = session()
+        recovery_view = Mock()
+        recovery_view.render_recovery_form.return_value = Mock(
+            payload={"password": "new-password", "confirmation": "new-password"}
+        )
+        classifier_loader = Mock()
+        rerun_controller = AppController(
+            view=self.view,
+            auth_view=recovery_view,
+            history_view=self.history_view,
+            auth_service=recovery_service,
+            history_repository=self.history_repository,
+            classifier_loader=classifier_loader,
+            state=state,
+            query_params={},
+        )
+
+        rerun_controller.run()
+
+        self.assertEqual(
+            recovery_service.method_calls[:2],
+            [
+                unittest.mock.call.restore_session("access-a", "refresh-a"),
+                unittest.mock.call.update_password(
+                    "new-password", "new-password"
+                ),
+            ],
+        )
+        classifier_loader.assert_not_called()
+
+    def test_expired_recovery_session_clears_state_without_loading_classifier(self):
+        state = {}
+        save_auth_session(state, session())
+        state["supabase_recovery_mode"] = True
+        controller = self.build_controller(state)
+        self.auth_service.restore_session.side_effect = AuthError("provider detail")
+
+        controller.run()
+
+        self.assertIsNone(load_auth_tokens(state))
+        self.assertFalse(is_recovery_mode(state))
+        self.auth_view.render_error.assert_called_once_with(
+            "Recovery link or session has expired. Request a new password reset."
+        )
+        self.auth_view.render_recovery_form.assert_not_called()
+        self.classifier_loader.assert_not_called()
+
+    def test_malformed_history_offset_is_reset_to_zero(self):
+        state = {"history_offset": "broken"}
+        save_auth_session(state, session())
+        controller = self.build_controller(state)
+        self.auth_service.restore_session.return_value = session()
+        self.view.render_sidebar.return_value = ("History", False)
+        self.history_repository.list_page.return_value = HistoryPage([], False)
+        self.history_view.render.return_value = None
+
+        controller.run()
+
+        self.assertEqual(state["history_offset"], 0)
+        self.history_repository.list_page.assert_called_once_with(
+            "user-a", offset=0
+        )
 
     @patch("src.controllers.app_controller.st")
     def test_logout_clears_local_tokens_when_remote_signout_fails(self, streamlit):

@@ -95,6 +95,8 @@ class AppController:
             save_auth_session(self.state, callback_session)
 
         if is_recovery_mode(self.state):
+            if not self._restore_recovery_session():
+                return
             self._run_recovery_form()
             return
 
@@ -144,6 +146,25 @@ class AppController:
             return None
         save_auth_session(self.state, session)
         return session
+
+    def _restore_recovery_session(self) -> bool:
+        tokens = load_auth_tokens(self.state)
+        if tokens is None:
+            clear_auth_state(self.state)
+            self.auth_view.render_error(
+                "Recovery link or session has expired. Request a new password reset."
+            )
+            return False
+        try:
+            session = self.auth_service.restore_session(*tokens)
+        except (AuthError, ValidationError):
+            clear_auth_state(self.state)
+            self.auth_view.render_error(
+                "Recovery link or session has expired. Request a new password reset."
+            )
+            return False
+        save_auth_session(self.state, session)
+        return True
 
     def _handle_auth_action(self, action: AuthAction) -> None:
         try:
@@ -209,7 +230,16 @@ class AppController:
         st.rerun()
 
     def _run_history(self, session: AuthSession) -> None:
-        offset = int(self.state.get("history_offset", 0))
+        stored_offset = self.state.get("history_offset", 0)
+        if (
+            type(stored_offset) is not int
+            or stored_offset < 0
+            or stored_offset % HistoryRepository.PAGE_SIZE != 0
+        ):
+            offset = 0
+            self.state["history_offset"] = offset
+        else:
+            offset = stored_offset
         try:
             page = self.history_repository.list_page(
                 session.user.id, offset=offset
