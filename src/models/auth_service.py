@@ -107,6 +107,10 @@ class AuthService:
     def restore_session(
         self, access_token: str, refresh_token: str
     ) -> AuthSession:
+        if not access_token.strip():
+            raise ValidationError("Access token is missing.")
+        if not refresh_token.strip():
+            raise ValidationError("Refresh token is missing.")
         try:
             response = self.client.auth.set_session(access_token, refresh_token)
             return self._to_session(response)
@@ -116,7 +120,7 @@ class AuthService:
     def verify_token(self, token_hash: str, otp_type: str) -> AuthSession:
         if otp_type not in {"email", "recovery"}:
             raise ValidationError("Unsupported authentication callback.")
-        if not token_hash:
+        if not token_hash.strip():
             raise ValidationError("Authentication token is missing.")
         try:
             response = self.client.auth.verify_otp(
@@ -147,7 +151,10 @@ class AuthService:
             raise AuthError("Password could not be updated. Try again.") from exc
 
     def sign_out(self) -> None:
-        self.client.auth.sign_out()
+        try:
+            self.client.auth.sign_out()
+        except Exception as exc:
+            raise AuthError("Sign out could not be completed.") from exc
 
     @staticmethod
     def _to_session(response: Any) -> AuthSession:

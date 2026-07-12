@@ -95,9 +95,103 @@ class AuthServiceTests(unittest.TestCase):
         )
         self.assertEqual(result.refresh_token, "refresh-a")
 
+    def test_restore_session_rejects_empty_or_whitespace_access_token(self):
+        for access_token in ("", "   "):
+            with self.subTest(access_token=access_token):
+                self.client.auth.set_session.reset_mock()
+
+                with self.assertRaises(ValidationError):
+                    self.service.restore_session(access_token, "refresh-token")
+
+                self.client.auth.set_session.assert_not_called()
+
+    def test_restore_session_rejects_empty_or_whitespace_refresh_token(self):
+        for refresh_token in ("", "   "):
+            with self.subTest(refresh_token=refresh_token):
+                self.client.auth.set_session.reset_mock()
+
+                with self.assertRaises(ValidationError):
+                    self.service.restore_session("access-token", refresh_token)
+
+                self.client.auth.set_session.assert_not_called()
+
     def test_verify_rejects_unknown_callback_type(self):
         with self.assertRaises(ValidationError):
             self.service.verify_token("token-hash", "invite")
+
+    def test_verify_rejects_whitespace_token_without_calling_provider(self):
+        with self.assertRaises(ValidationError):
+            self.service.verify_token("   ", "email")
+
+        self.client.auth.verify_otp.assert_not_called()
+
+    def test_verify_uses_exact_signature_without_altering_opaque_token(self):
+        self.client.auth.verify_otp.return_value = auth_response()
+
+        result = self.service.verify_token(" opaque token ", "recovery")
+
+        self.client.auth.verify_otp.assert_called_once_with(
+            {"token_hash": " opaque token ", "type": "recovery"}
+        )
+        self.assertEqual(result.access_token, "access-a")
+
+    def test_reset_request_uses_exact_signature(self):
+        self.service.request_password_reset(" Person@Example.COM ")
+
+        self.client.auth.reset_password_for_email.assert_called_once_with(
+            "person@example.com",
+            {"redirect_to": "https://app.example.com"},
+        )
+
+    def test_reset_request_provider_failure_is_generic_and_chained(self):
+        provider_error = RuntimeError("registered email leaked")
+        self.client.auth.reset_password_for_email.side_effect = provider_error
+
+        with self.assertRaises(AuthError) as raised:
+            self.service.request_password_reset("person@example.com")
+
+        self.assertEqual(
+            str(raised.exception),
+            "If an account exists for that email, a reset message will be sent.",
+        )
+        self.assertNotIn("registered email leaked", str(raised.exception))
+        self.assertIs(raised.exception.__cause__, provider_error)
+
+    def test_update_password_uses_exact_signature(self):
+        self.service.update_password("password-123", "password-123")
+
+        self.client.auth.update_user.assert_called_once_with(
+            {"password": "password-123"}
+        )
+
+    def test_update_password_provider_failure_is_generic_and_chained(self):
+        provider_error = RuntimeError("provider update detail")
+        self.client.auth.update_user.side_effect = provider_error
+
+        with self.assertRaises(AuthError) as raised:
+            self.service.update_password("password-123", "password-123")
+
+        self.assertEqual(
+            str(raised.exception), "Password could not be updated. Try again."
+        )
+        self.assertNotIn("provider update detail", str(raised.exception))
+        self.assertIs(raised.exception.__cause__, provider_error)
+
+    def test_sign_out_calls_provider(self):
+        self.service.sign_out()
+
+        self.client.auth.sign_out.assert_called_once_with()
+
+    def test_sign_out_provider_failure_is_generic_and_chained(self):
+        provider_error = RuntimeError("provider logout detail")
+        self.client.auth.sign_out.side_effect = provider_error
+
+        with self.assertRaises(AuthError) as raised:
+            self.service.sign_out()
+
+        self.assertEqual(str(raised.exception), "Sign out could not be completed.")
+        self.assertNotIn("provider logout detail", str(raised.exception))
+        self.assertIs(raised.exception.__cause__, provider_error)
 
     def test_login_exception_becomes_generic_error(self):
         self.client.auth.sign_in_with_password.side_effect = RuntimeError(
