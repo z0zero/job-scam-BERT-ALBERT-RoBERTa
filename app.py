@@ -18,8 +18,9 @@ EMAIL_VERIFICATION_SUCCESS_MESSAGE = (
 
 
 if __name__ == "__main__":
+    controller = AppController()
+
     if consume_email_verification_notice(st.query_params):
         st.success(EMAIL_VERIFICATION_SUCCESS_MESSAGE)
 
-    controller = AppController()
     controller.run()
