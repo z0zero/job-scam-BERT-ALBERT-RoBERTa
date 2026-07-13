@@ -117,19 +117,23 @@ class AuthService:
         except Exception as exc:
             raise AuthError("Your session has expired. Please sign in again.") from exc
 
-    def verify_token(self, token_hash: str, otp_type: str) -> AuthSession:
-        if otp_type not in {"email", "recovery"}:
-            raise ValidationError("Unsupported authentication callback.")
+    def verify_recovery_token(self, token_hash: str) -> AuthSession:
+        """Verify the custom recovery callback used by the Streamlit form.
+
+        Sign-up confirmation intentionally uses Supabase's default email template.
+        Supabase verifies the account before redirecting the browser to APP_URL, so
+        the application does not verify sign-up tokens itself.
+        """
         if not token_hash.strip():
             raise ValidationError("Authentication token is missing.")
         try:
             response = self.client.auth.verify_otp(
-                {"token_hash": token_hash, "type": otp_type}
+                {"token_hash": token_hash, "type": "recovery"}
             )
             return self._to_session(response)
         except Exception as exc:
             raise AuthError(
-                "This authentication link is invalid or has expired."
+                "This password recovery link is invalid or has expired."
             ) from exc
 
     def request_password_reset(self, email: str) -> None:

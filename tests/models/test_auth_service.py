@@ -46,7 +46,7 @@ class AuthServiceTests(unittest.TestCase):
         self.client = Mock()
         self.service = AuthService(self.client, "https://app.example.com")
 
-    def test_sign_up_sends_full_name_and_redirect(self):
+    def test_sign_up_uses_supabase_default_confirmation_redirect(self):
         self.client.auth.sign_up.return_value = SimpleNamespace(session=None)
 
         self.service.sign_up(
@@ -115,20 +115,16 @@ class AuthServiceTests(unittest.TestCase):
 
                 self.client.auth.set_session.assert_not_called()
 
-    def test_verify_rejects_unknown_callback_type(self):
+    def test_recovery_rejects_whitespace_token_without_calling_provider(self):
         with self.assertRaises(ValidationError):
-            self.service.verify_token("token-hash", "invite")
-
-    def test_verify_rejects_whitespace_token_without_calling_provider(self):
-        with self.assertRaises(ValidationError):
-            self.service.verify_token("   ", "email")
+            self.service.verify_recovery_token("   ")
 
         self.client.auth.verify_otp.assert_not_called()
 
-    def test_verify_uses_exact_signature_without_altering_opaque_token(self):
+    def test_recovery_uses_exact_signature_without_altering_opaque_token(self):
         self.client.auth.verify_otp.return_value = auth_response()
 
-        result = self.service.verify_token(" opaque token ", "recovery")
+        result = self.service.verify_recovery_token(" opaque token ")
 
         self.client.auth.verify_otp.assert_called_once_with(
             {"token_hash": " opaque token ", "type": "recovery"}

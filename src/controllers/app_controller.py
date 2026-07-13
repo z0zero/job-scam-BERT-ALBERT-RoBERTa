@@ -90,9 +90,9 @@ class AppController:
             self.view.render_error(self.config_error)
             return
 
-        callback_session = self._consume_auth_callback()
-        if callback_session is not None:
-            save_auth_session(self.state, callback_session)
+        recovery_session = self._consume_recovery_callback()
+        if recovery_session is not None:
+            save_auth_session(self.state, recovery_session)
 
         if is_recovery_mode(self.state):
             if not self._restore_recovery_session():
@@ -116,23 +116,30 @@ class AppController:
         else:
             self._run_analysis(current_session)
 
-    def _consume_auth_callback(self) -> AuthSession | None:
+    def _consume_recovery_callback(self) -> AuthSession | None:
+        """Consume only the custom password-recovery callback.
+
+        Sign-up confirmation uses Supabase's default email template. Supabase
+        verifies the email itself and redirects the browser back to APP_URL, so
+        the Streamlit controller does not process a sign-up token.
+        """
         token_hash = self.query_params.get("token_hash")
-        otp_type = self.query_params.get("type")
-        if not token_hash and not otp_type:
+        callback_type = self.query_params.get("type")
+        if not token_hash and not callback_type:
             return None
+        if callback_type != "recovery":
+            return None
+
         self.query_params.clear()
         try:
-            session = self.auth_service.verify_token(
-                str(token_hash or ""), str(otp_type or "")
+            session = self.auth_service.verify_recovery_token(
+                str(token_hash or "")
             )
         except (AuthError, ValidationError) as exc:
             self.auth_view.render_error(str(exc))
             return None
-        if otp_type == "recovery":
-            mark_recovery_mode(self.state, True)
-        else:
-            self.auth_view.render_success("Email verified successfully.")
+
+        mark_recovery_mode(self.state, True)
         return session
 
     def _restore_session(self) -> AuthSession | None:
@@ -183,7 +190,7 @@ class AppController:
                     action.payload["confirmation"],
                 )
                 self.auth_view.render_success(
-                    "Check your email to verify the new account."
+                    "Check your email, confirm the account, then return here and log in."
                 )
             elif action.kind == "forgot_password":
                 try:
