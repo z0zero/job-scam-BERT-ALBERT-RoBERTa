@@ -36,7 +36,9 @@ begin
               and i.indisvalid
               and i.indnkeyatts = 2
               and pg_get_indexdef(i.indexrelid, 1, true) = 'user_id'
-              and pg_get_indexdef(i.indexrelid, 2, true) = 'created_at DESC'
+              and pg_get_indexdef(i.indexrelid, 2, true) = 'created_at'
+              and ((i.indoption::smallint[])[0] & 1) = 0
+              and ((i.indoption::smallint[])[1] & 1) = 1
         ) then
         raise exception 'Expected valid (user_id, created_at DESC) history index';
     end if;
