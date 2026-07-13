@@ -46,7 +46,7 @@ class AuthServiceTests(unittest.TestCase):
         self.client = Mock()
         self.service = AuthService(self.client, "https://app.example.com")
 
-    def test_sign_up_uses_supabase_default_confirmation_redirect(self):
+    def test_sign_up_marks_default_confirmation_redirect(self):
         self.client.auth.sign_up.return_value = SimpleNamespace(session=None)
 
         self.service.sign_up(
@@ -62,7 +62,7 @@ class AuthServiceTests(unittest.TestCase):
                 "password": "password-123",
                 "options": {
                     "data": {"full_name": "Person A"},
-                    "email_redirect_to": "https://app.example.com",
+                    "email_redirect_to": "https://app.example.com/?verified=true",
                 },
             }
         )
