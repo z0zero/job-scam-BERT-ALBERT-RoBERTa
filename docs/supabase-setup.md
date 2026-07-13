@@ -21,12 +21,25 @@ origins to the redirect allowlist.
 `RedirectTo` comes from `APP_URL`; that URL must be present in the redirect
 allowlist.
 
-## 4. Configure Confirm Sign Up template
+For the deployed application, also add this exact Redirect URL:
 
-```html
-<h2>Confirm your account</h2>
-<p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email">Confirm email</a></p>
+```text
+https://job-scam.streamlit.app/?verified=true
 ```
+
+## 4. Keep the default Confirm signup template
+
+Do not customize the Confirm signup link. Keep Supabase's default template,
+which uses `{{ .ConfirmationURL }}`. `AuthService.sign_up()` supplies this
+production redirect:
+
+```text
+https://job-scam.streamlit.app/?verified=true
+```
+
+After Supabase verifies the account, Streamlit consumes `verified=true`, shows
+`Your email has been successfully verified. You can now log in.` once, and
+leaves the user logged out for manual login.
 
 ## 5. Configure Reset Password template
 
@@ -36,8 +49,8 @@ allowlist.
 <p>If you did not request this change, ignore this email.</p>
 ```
 
-Token-hash query parameters are consumed once and cleared immediately by the
-Streamlit app. Access and refresh tokens are never placed in the URL.
+Recovery token-hash query parameters are consumed once and cleared immediately
+by the Streamlit app. Access and refresh tokens are never placed in the URL.
 
 ## 6. Configure local secrets
 
