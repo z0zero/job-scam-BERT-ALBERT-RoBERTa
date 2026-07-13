@@ -108,6 +108,8 @@ Aplikasi mengikuti pemisahan Model-View-Controller agar UI Streamlit, logika bis
 - **View** (`src/views/main_view.py`): rendering Streamlit untuk header, form input, dan tampilan hasil.
 - **Model** (`src/models/`): logika inferensi dan preprocessing. `classifier.py` memuat model dari `./best_model`, `preprocessor.py` mencerminkan pembersihan teks notebook, dan `ocr_engine.py` membungkus Tesseract untuk upload gambar.
 - **Controller** (`src/controllers/app_controller.py`): menghubungkan view, preprocessor, classifier, dan flow OCR.
+- **Autentikasi** (`src/models/auth_service.py`): Supabase Auth menangani akses wajib dengan email/password, verifikasi email, pemulihan password, refresh sesi, dan logout.
+- **Riwayat** (`src/models/history_repository.py`): Supabase Postgres menyimpan analisis setiap pengguna di balik policy RLS berbasis kepemilikan.
 
 `app.py` adalah entry point tipis yang membuat `AppController`, sehingga `streamlit run app.py` menjalankan aplikasi.
 
@@ -146,7 +148,17 @@ Buka `research_pipeline.ipynb` di Jupyter atau Google Colab. Download dataset EM
 
 Run penuh terbaru selesai di Google Colab Free dengan GPU Tesla T4.
 
-### 4. Jalankan aplikasi web
+### 4. Konfigurasi Supabase
+
+Buat atau pilih project Supabase, terapkan migration yang sudah di-commit, lalu
+salin `.streamlit/secrets.example.toml` menjadi `.streamlit/secrets.toml`. Ganti
+nilai palsunya dengan URL project, publishable key aktif, dan URL aplikasi. Ikuti
+[panduan setup Supabase](docs/supabase-setup.md) untuk RLS dan template email.
+
+SMTP bawaan Supabase hanya sesuai untuk demo skripsi dan hanya mengirim ke alamat
+anggota tim project. Konfigurasikan custom SMTP sebelum deployment publik.
+
+### 5. Jalankan aplikasi web
 
 ```bash
 streamlit run app.py
@@ -161,6 +173,8 @@ Buka http://localhost:8501 di browser. Untuk sanity-check setup, salin salah sat
 - **Confidence score:** menampilkan confidence prediksi
 - **Penanganan class imbalance:** weighted loss pada proses fine-tuning Transformer
 - **Perbandingan riset:** BERT, ALBERT, dan RoBERTa pada tiga seed
+- **Autentikasi wajib:** verifikasi email, login, pemulihan password, refresh sesi, dan logout melalui Supabase Auth
+- **Riwayat per pengguna:** pengguna terautentikasi dapat meninjau detail analisisnya sendiri; RLS mencegah akses lintas pengguna
 
 ## Keterbatasan dan Penggunaan Bertanggung Jawab
 
@@ -182,3 +196,4 @@ Anggap output model sebagai sinyal screening, bukan vonis akhir. Gabungkan denga
 - **Aplikasi:** Streamlit
 - **OCR:** pytesseract dengan Tesseract
 - **Metrik:** accuracy, precision, recall, F1, ROC-AUC, PR-AUC, confusion matrix, runtime, inference latency
+- **Autentikasi dan database:** Supabase Auth, Supabase Postgres, PostgREST, PostgreSQL RLS

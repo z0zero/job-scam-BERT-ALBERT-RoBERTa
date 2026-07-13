@@ -108,6 +108,8 @@ The app follows a Model-View-Controller split so the Streamlit UI, business logi
 - **View** (`src/views/main_view.py`): Streamlit rendering for the header, input form, and result display.
 - **Model** (`src/models/`): inference and preprocessing logic. `classifier.py` loads the exported model from `./best_model`, `preprocessor.py` mirrors notebook text cleaning, and `ocr_engine.py` wraps Tesseract for image uploads.
 - **Controller** (`src/controllers/app_controller.py`): wires the view, preprocessor, classifier, and OCR flow.
+- **Authentication** (`src/models/auth_service.py`): Supabase Auth handles mandatory email/password access, email verification, password recovery, session refresh, and logout.
+- **History** (`src/models/history_repository.py`): Supabase Postgres stores each user's analyses behind ownership-based RLS policies.
 
 `app.py` is a thin entry point that instantiates `AppController`, so `streamlit run app.py` starts the application.
 
@@ -146,7 +148,17 @@ Open `research_pipeline.ipynb` in Jupyter or Google Colab. Download the EMSCAD d
 
 The latest full run completed on Google Colab Free with a Tesla T4 GPU.
 
-### 4. Run the web app
+### 4. Configure Supabase
+
+Create or select a Supabase project, apply the committed migration, and copy
+`.streamlit/secrets.example.toml` to `.streamlit/secrets.toml`. Replace its fake
+values with the project URL, active publishable key, and application URL. Follow
+[the Supabase setup guide](docs/supabase-setup.md) for RLS and email templates.
+
+The built-in Supabase SMTP service is suitable only for thesis demos and sends
+only to project-team addresses. Configure custom SMTP before public deployment.
+
+### 5. Run the web app
 
 ```bash
 streamlit run app.py
@@ -161,6 +173,8 @@ Open http://localhost:8501 in your browser. To sanity-check the setup, copy eith
 - **Confidence score:** shows prediction confidence
 - **Class imbalance handling:** weighted loss during Transformer fine-tuning
 - **Research comparison:** BERT, ALBERT, and RoBERTa across three seeds
+- **Mandatory authentication:** email verification, login, password recovery, session refresh, and logout through Supabase Auth
+- **Per-user history:** authenticated users can review their own analysis details; RLS prevents cross-user access
 
 ## Limitations and Responsible Use
 
@@ -182,3 +196,4 @@ Treat the model output as a screening signal, not a verdict. Pair it with extern
 - **App:** Streamlit
 - **OCR:** pytesseract with Tesseract
 - **Metrics:** accuracy, precision, recall, F1, ROC-AUC, PR-AUC, confusion matrix, runtime, inference latency
+- **Authentication and database:** Supabase Auth, Supabase Postgres, PostgREST, PostgreSQL RLS
