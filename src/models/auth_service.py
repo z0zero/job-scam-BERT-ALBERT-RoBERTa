@@ -64,6 +64,9 @@ class AuthService:
         self.client = client
         self.app_url = app_url
 
+    def _email_verification_redirect(self) -> str:
+        return f"{self.app_url}/?verified=true"
+
     def sign_up(
         self,
         full_name: str,
@@ -81,7 +84,7 @@ class AuthService:
                     "password": password,
                     "options": {
                         "data": {"full_name": cleaned_name},
-                        "email_redirect_to": self.app_url,
+                        "email_redirect_to": self._email_verification_redirect(),
                     },
                 }
             )
