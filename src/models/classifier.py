@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 
 os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+os.environ.setdefault("HF_HUB_DISABLE_IMPLICIT_TOKEN", "1")
 os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "120")
 os.environ.setdefault("HF_HUB_ETAG_TIMEOUT", "30")
 if os.name == "nt":
@@ -33,7 +34,6 @@ class ScamClassifier:
 
         # Digunakan saat deployment.
         self.model_id = os.getenv("HF_MODEL_ID", "").strip()
-        self.hf_token = os.getenv("HF_TOKEN", "").strip() or None
 
         self.max_len = max_len
         self.device = torch.device(
@@ -59,7 +59,7 @@ class ScamClassifier:
             model_source = Path(
                 snapshot_download(
                     repo_id=self.model_id,
-                    token=self.hf_token,
+                    token=False,
                     allow_patterns=MODEL_SNAPSHOT_FILES,
                 )
             )

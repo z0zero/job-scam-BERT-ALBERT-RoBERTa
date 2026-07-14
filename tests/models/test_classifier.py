@@ -29,11 +29,25 @@ class ScamClassifierTests(unittest.TestCase):
             Path(__file__).resolve().parents[2] / "requirements.txt"
         ).read_text(encoding="utf-8").splitlines()
 
+        self.assertFalse(
+            any(line.startswith("--extra-index-url") for line in requirements)
+        )
         self.assertIn(
-            "--extra-index-url https://download.pytorch.org/whl/cpu",
+            "torch @ https://download-r2.pytorch.org/whl/cpu/"
+            "torch-2.10.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl"
+            "#sha256=ee40b8a4b4b2cf0670c6fd4f35a7ef23871af956fecb238f"
+            "bf5da15a72650b1d ; sys_platform == \"linux\" and "
+            "platform_machine == \"x86_64\" and python_version == \"3.12\"",
             requirements,
         )
-        self.assertIn("torch==2.10.0+cpu", requirements)
+        self.assertIn(
+            "torch @ https://download-r2.pytorch.org/whl/cpu/"
+            "torch-2.10.0%2Bcpu-cp312-cp312-win_amd64.whl"
+            "#sha256=21cb5436978ef47c823b7a813ff0f8c2892e266cfe0f1d94"
+            "4879b5fba81bf4e1 ; sys_platform == \"win32\" and "
+            "platform_machine == \"AMD64\" and python_version == \"3.12\"",
+            requirements,
+        )
         self.assertIn("transformers==5.0.0", requirements)
 
     def test_hugging_face_network_settings_are_configured_before_import(self):
@@ -42,6 +56,7 @@ class ScamClassifierTests(unittest.TestCase):
         env.pop("HF_HUB_DOWNLOAD_TIMEOUT", None)
         env.pop("HF_HUB_ETAG_TIMEOUT", None)
         env.pop("HF_HUB_DISABLE_SYMLINKS", None)
+        env.pop("HF_HUB_DISABLE_IMPLICIT_TOKEN", None)
 
         result = subprocess.run(
             [
@@ -53,7 +68,8 @@ class ScamClassifierTests(unittest.TestCase):
                     "print(os.environ.get('HF_HUB_DISABLE_XET')); "
                     "print(os.environ.get('HF_HUB_DOWNLOAD_TIMEOUT')); "
                     "print(os.environ.get('HF_HUB_ETAG_TIMEOUT')); "
-                    "print(os.environ.get('HF_HUB_DISABLE_SYMLINKS'))"
+                    "print(os.environ.get('HF_HUB_DISABLE_SYMLINKS')); "
+                    "print(os.environ.get('HF_HUB_DISABLE_IMPLICIT_TOKEN'))"
                 ),
             ],
             cwd=Path(__file__).resolve().parents[2],
@@ -66,7 +82,7 @@ class ScamClassifierTests(unittest.TestCase):
         expected_symlink_setting = "1" if os.name == "nt" else "None"
         self.assertEqual(
             result.stdout.splitlines(),
-            ["1", "120", "30", expected_symlink_setting],
+            ["1", "120", "30", expected_symlink_setting, "1"],
         )
 
     @patch("src.models.classifier.snapshot_download")
@@ -92,7 +108,7 @@ class ScamClassifierTests(unittest.TestCase):
                 os.environ,
                 {
                     "HF_MODEL_ID": "z0zero/job-scam-bert",
-                    "HF_TOKEN": "",
+                    "HF_TOKEN": "invalid-stale-token",
                 },
                 clear=False,
             ):
@@ -101,7 +117,7 @@ class ScamClassifierTests(unittest.TestCase):
 
         snapshot_download.assert_called_once_with(
             repo_id="z0zero/job-scam-bert",
-            token=None,
+            token=False,
             allow_patterns=[
                 "config.json",
                 "model.safetensors",

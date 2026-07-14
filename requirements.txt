@@ -1,6 +1,5 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-
-torch==2.10.0+cpu
+torch @ https://download-r2.pytorch.org/whl/cpu/torch-2.10.0%2Bcpu-cp312-cp312-manylinux_2_28_x86_64.whl#sha256=ee40b8a4b4b2cf0670c6fd4f35a7ef23871af956fecb238fbf5da15a72650b1d ; sys_platform == "linux" and platform_machine == "x86_64" and python_version == "3.12"
+torch @ https://download-r2.pytorch.org/whl/cpu/torch-2.10.0%2Bcpu-cp312-cp312-win_amd64.whl#sha256=21cb5436978ef47c823b7a813ff0f8c2892e266cfe0f1d944879b5fba81bf4e1 ; sys_platform == "win32" and platform_machine == "AMD64" and python_version == "3.12"
 transformers==5.0.0
 accelerate==1.14.0
 pandas==3.0.3
