@@ -1,20 +1,34 @@
+import inspect
 import unittest
+from contextlib import nullcontext
 from unittest.mock import Mock, patch
 
-from src.controllers.app_controller import AppController
-from src.models.auth_service import AuthError, AuthSession, AuthenticatedUser
+from src.controllers.app_controller import (
+    MODEL_LOADING_MESSAGE,
+    AppController,
+)
+from src.models.auth_service import (
+    AuthError,
+    AuthSession,
+    AuthenticatedUser,
+)
 from src.models.history_repository import HistoryError, HistoryPage
 from src.models.session_store import (
+    is_model_loading_pending,
     is_recovery_mode,
     load_auth_tokens,
+    mark_model_loading_pending,
     save_auth_session,
 )
+from src.views.auth_view import AuthAction
 
 
 def session():
     return AuthSession(
         user=AuthenticatedUser(
-            id="user-a", email="person@example.com", full_name="Person A"
+            id="user-a",
+            email="person@example.com",
+            full_name="Person A",
         ),
         access_token="access-a",
         refresh_token="refresh-a",
@@ -24,15 +38,21 @@ def session():
 class AppControllerTests(unittest.TestCase):
     def build_controller(self, state=None, query_params=None):
         self.view = Mock()
+        self.view.content_container.return_value = nullcontext()
         self.view.render_sidebar.return_value = ("Analyze", False)
         self.view.render_input_section.return_value = ("", "text", False)
+        self.view.render_model_loading.return_value = Mock()
+        self.view.render_model_load_error.return_value = False
         self.auth_view = Mock()
         self.auth_view.render_auth_page.return_value = None
         self.history_view = Mock()
         self.auth_service = Mock()
         self.history_repository = Mock()
         self.classifier_loader = Mock()
-        self.query_params = query_params if query_params is not None else {}
+        self.classifier_cache_clearer = Mock()
+        self.query_params = (
+            query_params if query_params is not None else {}
+        )
         return AppController(
             view=self.view,
             auth_view=self.auth_view,
@@ -40,33 +60,125 @@ class AppControllerTests(unittest.TestCase):
             auth_service=self.auth_service,
             history_repository=self.history_repository,
             classifier_loader=self.classifier_loader,
+            classifier_cache_clearer=self.classifier_cache_clearer,
             state=state if state is not None else {},
             query_params=self.query_params,
         )
 
     def test_anonymous_user_never_loads_classifier(self):
         controller = self.build_controller()
+
         controller.run()
-        self.auth_view.render_auth_page.assert_called_once()
+
+        self.view.content_container.assert_called_once_with()
+        self.auth_view.render_auth_page.assert_called_once_with()
         self.classifier_loader.assert_not_called()
 
-    def test_authenticated_user_loads_classifier_on_analyze(self):
+    @patch("src.controllers.app_controller.st")
+    def test_login_stores_session_marks_loading_and_reruns(self, streamlit):
+        state = {}
+        controller = self.build_controller(state)
+        self.auth_service.sign_in.return_value = session()
+        self.auth_view.render_auth_page.return_value = AuthAction(
+            "login",
+            {
+                "email": "person@example.com",
+                "password": "password-123",
+            },
+        )
+
+        controller.run()
+
+        self.assertEqual(load_auth_tokens(state), ("access-a", "refresh-a"))
+        self.assertTrue(is_model_loading_pending(state))
+        self.assertEqual(state["history_offset"], 0)
+        streamlit.rerun.assert_called_once_with()
+
+    def test_authenticated_cold_start_replaces_auth_with_loading_panel(self):
+        state = {}
+        save_auth_session(state, session())
+        mark_model_loading_pending(state, True)
+        controller = self.build_controller(state)
+        self.auth_service.restore_session.return_value = session()
+        classifier = Mock(meta={})
+        self.classifier_loader.return_value = classifier
+        loading_panel = self.view.render_model_loading.return_value
+
+        controller.run()
+
+        self.auth_view.render_auth_page.assert_not_called()
+        self.view.render_model_loading.assert_called_once_with(
+            MODEL_LOADING_MESSAGE
+        )
+        self.classifier_loader.assert_called_once_with()
+        loading_panel.empty.assert_called_once_with()
+        self.assertFalse(is_model_loading_pending(state))
+
+    def test_classifier_error_shows_retry_without_clearing_authentication(self):
+        state = {}
+        save_auth_session(state, session())
+        mark_model_loading_pending(state, True)
+        controller = self.build_controller(state)
+        self.auth_service.restore_session.return_value = session()
+        self.classifier_loader.return_value = "download failed"
+
+        controller.run()
+
+        self.view.render_model_load_error.assert_called_once_with(
+            "download failed"
+        )
+        self.assertEqual(load_auth_tokens(state), ("access-a", "refresh-a"))
+        self.assertFalse(is_model_loading_pending(state))
+        self.auth_view.render_auth_page.assert_not_called()
+        self.classifier_cache_clearer.assert_not_called()
+
+    @patch("src.controllers.app_controller.st")
+    def test_model_retry_clears_only_classifier_cache_and_reruns(
+        self, streamlit
+    ):
         state = {}
         save_auth_session(state, session())
         controller = self.build_controller(state)
         self.auth_service.restore_session.return_value = session()
-        self.classifier_loader.return_value = Mock(meta={})
+        self.classifier_loader.return_value = "download failed"
+        self.view.render_model_load_error.return_value = True
 
         controller.run()
 
-        self.classifier_loader.assert_called_once()
+        self.classifier_cache_clearer.assert_called_once_with()
+        self.assertTrue(is_model_loading_pending(state))
+        self.assertEqual(load_auth_tokens(state), ("access-a", "refresh-a"))
+        streamlit.rerun.assert_called_once_with()
+
+    def test_history_page_does_not_load_classifier(self):
+        state = {}
+        save_auth_session(state, session())
+        mark_model_loading_pending(state, True)
+        controller = self.build_controller(state)
+        self.auth_service.restore_session.return_value = session()
+        self.view.render_sidebar.return_value = ("History", False)
+        self.history_repository.list_page.return_value = HistoryPage([], False)
+        self.history_view.render.return_value = None
+
+        controller.run()
+
+        self.classifier_loader.assert_not_called()
+        self.assertFalse(is_model_loading_pending(state))
 
     @patch("src.controllers.app_controller.st")
-    @patch("src.controllers.app_controller.time.sleep")
-    @patch("src.controllers.app_controller.clean_text", return_value="cleaned")
-    @patch("src.controllers.app_controller.check_red_flags", return_value=[])
+    @patch(
+        "src.controllers.app_controller.clean_text",
+        return_value="cleaned",
+    )
+    @patch(
+        "src.controllers.app_controller.check_red_flags",
+        return_value=[],
+    )
     def test_history_failure_keeps_rendered_result(
-        self, _flags, _clean, _sleep, streamlit
+        self,
+        _flags,
+        _clean,
+        streamlit,
     ):
         state = {}
         save_auth_session(state, session())
@@ -77,7 +189,9 @@ class AppControllerTests(unittest.TestCase):
         self.classifier_loader.return_value = classifier
         streamlit.status.return_value.__enter__.return_value = Mock()
         self.view.render_input_section.return_value = (
-            "Job description", "text", False
+            "Job description",
+            "text",
+            False,
         )
         self.view.render_result_section.side_effect = (
             lambda is_disabled, on_analyze: on_analyze()
@@ -91,27 +205,63 @@ class AppControllerTests(unittest.TestCase):
             "Analysis history could not be saved."
         )
 
-    def test_callback_is_consumed_and_recovery_never_loads_classifier(self):
+    def test_analysis_flow_contains_no_artificial_sleep(self):
+        source = inspect.getsource(AppController._run_analysis)
+
+        self.assertNotIn("time.sleep", source)
+        self.assertNotIn("sleep(", source)
+
+    def test_recovery_callback_enters_change_password_mode(self):
         state = {}
-        params = {"token_hash": "secret-token", "type": "recovery"}
+        params = {
+            "token_hash": "secret-token",
+            "type": "recovery",
+        }
         controller = self.build_controller(state, params)
-        self.auth_service.verify_token.return_value = session()
+        self.auth_service.verify_recovery_token.return_value = session()
+        self.auth_service.restore_session.return_value = session()
         self.auth_view.render_recovery_form.return_value = None
 
         controller.run()
 
-        self.auth_service.verify_token.assert_called_once_with(
-            "secret-token", "recovery"
+        self.auth_service.verify_recovery_token.assert_called_once_with(
+            "secret-token"
         )
         self.assertEqual(params, {})
         self.assertTrue(is_recovery_mode(state))
+        self.auth_view.render_recovery_form.assert_called_once_with()
+        self.auth_view.render_auth_page.assert_not_called()
+        self.classifier_loader.assert_not_called()
+
+    def test_invalid_recovery_callback_is_cleared_and_shows_safe_error(self):
+        state = {}
+        params = {
+            "token_hash": "expired-token",
+            "type": "recovery",
+        }
+        controller = self.build_controller(state, params)
+        self.auth_service.verify_recovery_token.side_effect = AuthError(
+            "provider detail"
+        )
+
+        controller.run()
+
+        self.assertEqual(params, {})
+        self.assertFalse(is_recovery_mode(state))
+        self.auth_view.render_error.assert_called_once_with(
+            "This password recovery link is invalid or has expired."
+        )
+        self.auth_view.render_auth_page.assert_called_once_with()
         self.classifier_loader.assert_not_called()
 
     def test_recovery_rerun_restores_session_before_updating_password(self):
         state = {}
-        callback_params = {"token_hash": "secret-token", "type": "recovery"}
+        callback_params = {
+            "token_hash": "secret-token",
+            "type": "recovery",
+        }
         callback_controller = self.build_controller(state, callback_params)
-        self.auth_service.verify_token.return_value = session()
+        self.auth_service.verify_recovery_token.return_value = session()
         self.auth_service.restore_session.return_value = session()
         self.auth_view.render_recovery_form.return_value = None
         callback_controller.run()
@@ -119,8 +269,12 @@ class AppControllerTests(unittest.TestCase):
         recovery_service = Mock()
         recovery_service.restore_session.return_value = session()
         recovery_view = Mock()
-        recovery_view.render_recovery_form.return_value = Mock(
-            payload={"password": "new-password", "confirmation": "new-password"}
+        recovery_view.render_recovery_form.return_value = AuthAction(
+            "update_password",
+            {
+                "password": "new-password",
+                "confirmation": "new-password",
+            },
         )
         classifier_loader = Mock()
         rerun_controller = AppController(
@@ -130,6 +284,7 @@ class AppControllerTests(unittest.TestCase):
             auth_service=recovery_service,
             history_repository=self.history_repository,
             classifier_loader=classifier_loader,
+            classifier_cache_clearer=Mock(),
             state=state,
             query_params={},
         )
@@ -139,20 +294,28 @@ class AppControllerTests(unittest.TestCase):
         self.assertEqual(
             recovery_service.method_calls[:2],
             [
-                unittest.mock.call.restore_session("access-a", "refresh-a"),
+                unittest.mock.call.restore_session(
+                    "access-a",
+                    "refresh-a",
+                ),
                 unittest.mock.call.update_password(
-                    "new-password", "new-password"
+                    "new-password",
+                    "new-password",
                 ),
             ],
         )
         classifier_loader.assert_not_called()
 
-    def test_expired_recovery_session_clears_state_without_loading_classifier(self):
+    def test_expired_recovery_session_clears_state_without_loading_classifier(
+        self,
+    ):
         state = {}
         save_auth_session(state, session())
         state["supabase_recovery_mode"] = True
         controller = self.build_controller(state)
-        self.auth_service.restore_session.side_effect = AuthError("provider detail")
+        self.auth_service.restore_session.side_effect = AuthError(
+            "provider detail"
+        )
 
         controller.run()
 
@@ -163,6 +326,23 @@ class AppControllerTests(unittest.TestCase):
         )
         self.auth_view.render_recovery_form.assert_not_called()
         self.classifier_loader.assert_not_called()
+
+    def test_forgot_password_message_remains_generic(self):
+        controller = self.build_controller()
+        self.auth_service.request_password_reset.side_effect = AuthError(
+            "provider detail"
+        )
+        self.auth_view.render_auth_page.return_value = AuthAction(
+            "forgot_password",
+            {"email": "person@example.com"},
+        )
+
+        controller.run()
+
+        self.auth_view.render_success.assert_called_once_with(
+            "If an account exists for that email, a reset message will be sent."
+        )
+        self.auth_view.render_error.assert_not_called()
 
     def test_malformed_history_offset_is_reset_to_zero(self):
         state = {"history_offset": "broken"}
@@ -177,16 +357,22 @@ class AppControllerTests(unittest.TestCase):
 
         self.assertEqual(state["history_offset"], 0)
         self.history_repository.list_page.assert_called_once_with(
-            "user-a", offset=0
+            "user-a",
+            offset=0,
         )
 
     @patch("src.controllers.app_controller.st")
-    def test_logout_clears_local_tokens_when_remote_signout_fails(self, streamlit):
+    def test_logout_clears_local_tokens_when_remote_signout_fails(
+        self,
+        streamlit,
+    ):
         state = {"history_offset": 20}
         save_auth_session(state, session())
         controller = self.build_controller(state)
         self.auth_service.restore_session.return_value = session()
-        self.auth_service.sign_out.side_effect = RuntimeError("provider detail")
+        self.auth_service.sign_out.side_effect = RuntimeError(
+            "provider detail"
+        )
         self.view.render_sidebar.return_value = ("Analyze", True)
 
         controller.run()
@@ -194,7 +380,7 @@ class AppControllerTests(unittest.TestCase):
         self.assertIsNone(load_auth_tokens(state))
         self.assertNotIn("history_offset", state)
         self.classifier_loader.assert_not_called()
-        streamlit.rerun.assert_called_once()
+        streamlit.rerun.assert_called_once_with()
 
 
 if __name__ == "__main__":

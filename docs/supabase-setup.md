@@ -41,12 +41,38 @@ After Supabase verifies the account, Streamlit consumes `verified=true`, shows
 `Your email has been successfully verified. You can now log in.` once, and
 leaves the user logged out for manual login.
 
-## 5. Configure Reset Password template
+## 5. Configure the custom Reset password template
+
+The default Supabase recovery link redirects with browser-only URL fragments
+such as `#access_token=...`. Streamlit cannot read fragments through
+`st.query_params`, so the default recovery link opens the normal Login form.
+
+Open **Authentication → Email Templates → Reset password** and replace the
+link with this server-readable token-hash template:
 
 ```html
 <h2>Reset your password</h2>
-<p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery">Choose a new password</a></p>
+<p>
+  <a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery">
+    Choose a new password
+  </a>
+</p>
 <p>If you did not request this change, ignore this email.</p>
+```
+
+Save the template, then request a **new** reset email. Previously sent emails
+keep their old links and will not be changed retroactively.
+
+A correct recovery URL starts like this:
+
+```text
+https://job-scam.streamlit.app/?token_hash=...&type=recovery
+```
+
+It must not start like this:
+
+```text
+https://job-scam.streamlit.app/#access_token=...
 ```
 
 Recovery token-hash query parameters are consumed once and cleared immediately
