@@ -18,7 +18,9 @@ from src.models.session_store import (
     is_recovery_mode,
     load_auth_tokens,
     mark_model_loading_pending,
+    pop_auth_notice,
     save_auth_session,
+    set_auth_notice,
 )
 from src.views.auth_view import AuthAction
 
@@ -73,6 +75,39 @@ class AppControllerTests(unittest.TestCase):
         self.view.content_container.assert_called_once_with()
         self.auth_view.render_auth_page.assert_called_once_with()
         self.classifier_loader.assert_not_called()
+
+    def test_anonymous_run_renders_pending_notice_before_login(self):
+        state = {}
+        set_auth_notice(
+            state,
+            "Password updated. Sign in with your new password.",
+        )
+        controller = self.build_controller(state)
+
+        controller.run()
+
+        self.auth_view.render_success.assert_called_once_with(
+            "Password updated. Sign in with your new password."
+        )
+        self.auth_view.render_auth_page.assert_called_once_with()
+        self.assertIsNone(pop_auth_notice(state))
+        self.classifier_loader.assert_not_called()
+
+    def test_auth_notice_is_not_repeated_on_later_anonymous_run(self):
+        state = {}
+        set_auth_notice(
+            state,
+            "Password updated. Sign in with your new password.",
+        )
+        first_controller = self.build_controller(state)
+        first_controller.run()
+
+        second_controller = self.build_controller(state)
+        second_controller.run()
+
+        self.auth_view.render_success.assert_not_called()
+        self.auth_view.render_auth_page.assert_called_once_with()
+        self.assertIsNone(pop_auth_notice(state))
 
     @patch("src.controllers.app_controller.st")
     def test_login_stores_session_marks_loading_and_reruns(self, streamlit):
@@ -254,57 +289,72 @@ class AppControllerTests(unittest.TestCase):
         self.auth_view.render_auth_page.assert_called_once_with()
         self.classifier_loader.assert_not_called()
 
-    def test_recovery_rerun_restores_session_before_updating_password(self):
+    @patch("src.controllers.app_controller.st")
+    def test_successful_password_update_stores_notice_and_reruns(
+        self,
+        streamlit,
+    ):
         state = {}
-        callback_params = {
-            "token_hash": "secret-token",
-            "type": "recovery",
-        }
-        callback_controller = self.build_controller(state, callback_params)
-        self.auth_service.verify_recovery_token.return_value = session()
+        save_auth_session(state, session())
+        state["supabase_recovery_mode"] = True
+        controller = self.build_controller(state)
         self.auth_service.restore_session.return_value = session()
-        self.auth_view.render_recovery_form.return_value = None
-        callback_controller.run()
-
-        recovery_service = Mock()
-        recovery_service.restore_session.return_value = session()
-        recovery_view = Mock()
-        recovery_view.render_recovery_form.return_value = AuthAction(
+        self.auth_view.render_recovery_form.return_value = AuthAction(
             "update_password",
             {
                 "password": "new-password",
                 "confirmation": "new-password",
             },
         )
-        classifier_loader = Mock()
-        rerun_controller = AppController(
-            view=self.view,
-            auth_view=recovery_view,
-            history_view=self.history_view,
-            auth_service=recovery_service,
-            history_repository=self.history_repository,
-            classifier_loader=classifier_loader,
-            classifier_cache_clearer=Mock(),
-            state=state,
-            query_params={},
+
+        controller.run()
+
+        self.auth_service.update_password.assert_called_once_with(
+            "new-password",
+            "new-password",
         )
-
-        rerun_controller.run()
-
+        self.auth_service.sign_out.assert_called_once_with()
+        self.assertIsNone(load_auth_tokens(state))
+        self.assertFalse(is_recovery_mode(state))
         self.assertEqual(
-            recovery_service.method_calls[:2],
-            [
-                unittest.mock.call.restore_session(
-                    "access-a",
-                    "refresh-a",
-                ),
-                unittest.mock.call.update_password(
-                    "new-password",
-                    "new-password",
-                ),
-            ],
+            pop_auth_notice(state),
+            "Password updated. Sign in with your new password.",
         )
-        classifier_loader.assert_not_called()
+        self.auth_view.render_success.assert_not_called()
+        streamlit.rerun.assert_called_once_with()
+        self.classifier_loader.assert_not_called()
+
+    @patch("src.controllers.app_controller.st")
+    def test_failed_password_update_keeps_recovery_mode_without_notice_or_rerun(
+        self,
+        streamlit,
+    ):
+        state = {}
+        save_auth_session(state, session())
+        state["supabase_recovery_mode"] = True
+        controller = self.build_controller(state)
+        self.auth_service.restore_session.return_value = session()
+        self.auth_service.update_password.side_effect = AuthError(
+            "Password could not be updated. Try again."
+        )
+        self.auth_view.render_recovery_form.return_value = AuthAction(
+            "update_password",
+            {
+                "password": "new-password",
+                "confirmation": "new-password",
+            },
+        )
+
+        controller.run()
+
+        self.assertTrue(is_recovery_mode(state))
+        self.assertEqual(load_auth_tokens(state), ("access-a", "refresh-a"))
+        self.assertIsNone(pop_auth_notice(state))
+        self.auth_view.render_error.assert_called_once_with(
+            "Password could not be updated. Try again."
+        )
+        self.auth_service.sign_out.assert_not_called()
+        streamlit.rerun.assert_not_called()
 
     def test_expired_recovery_session_clears_state_without_loading_classifier(
         self,
