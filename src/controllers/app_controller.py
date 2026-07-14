@@ -1,4 +1,3 @@
-import time
 from collections.abc import MutableMapping
 from typing import Any, Callable
 
@@ -23,6 +22,7 @@ from src.models.session_store import (
     clear_auth_state,
     is_recovery_mode,
     load_auth_tokens,
+    mark_model_loading_pending,
     mark_recovery_mode,
     save_auth_session,
 )
@@ -36,7 +36,13 @@ from src.views.history_view import HistoryView
 from src.views.main_view import MainView
 
 
-@st.cache_resource
+MODEL_LOADING_MESSAGE = (
+    "Loading AI model...\n\n"
+    "The first load may take several minutes. Please keep this tab open."
+)
+
+
+@st.cache_resource(show_spinner=False)
 def get_classifier():
     classifier = ScamClassifier()
     try:
@@ -55,6 +61,7 @@ class AppController:
         auth_service: AuthService | None = None,
         history_repository: HistoryRepository | None = None,
         classifier_loader: Callable[[], Any] = get_classifier,
+        classifier_cache_clearer: Callable[[], None] | None = None,
         state: MutableMapping[str, Any] | None = None,
         query_params: MutableMapping[str, Any] | None = None,
     ):
@@ -66,6 +73,9 @@ class AppController:
             query_params if query_params is not None else st.query_params
         )
         self.classifier_loader = classifier_loader
+        self.classifier_cache_clearer = (
+            classifier_cache_clearer or get_classifier.clear
+        )
         self.config_error: str | None = None
         self.view.setup_page()
 
@@ -86,6 +96,10 @@ class AppController:
 
     def run(self) -> None:
         self.view.render_header()
+        with self.view.content_container():
+            self._run_content()
+
+    def _run_content(self) -> None:
         if self.config_error:
             self.view.render_error(self.config_error)
             return
@@ -112,17 +126,13 @@ class AppController:
             self._logout()
             return
         if page == "History":
+            mark_model_loading_pending(self.state, False)
             self._run_history(current_session)
         else:
             self._run_analysis(current_session)
 
     def _consume_recovery_callback(self) -> AuthSession | None:
-        """Consume only the custom password-recovery callback.
-
-        Sign-up confirmation uses Supabase's default email template. Supabase
-        verifies the email itself and redirects the browser back to APP_URL, so
-        the Streamlit controller does not process a sign-up token.
-        """
+        """Consume only the server-readable password-recovery callback."""
         token_hash = self.query_params.get("token_hash")
         callback_type = self.query_params.get("type")
         if not token_hash and not callback_type:
@@ -131,12 +141,20 @@ class AppController:
             return None
 
         self.query_params.clear()
-        try:
-            session = self.auth_service.verify_recovery_token(
-                str(token_hash or "")
+        if not token_hash:
+            mark_recovery_mode(self.state, False)
+            self.auth_view.render_error(
+                "This password recovery link is invalid or has expired."
             )
-        except (AuthError, ValidationError) as exc:
-            self.auth_view.render_error(str(exc))
+            return None
+
+        try:
+            session = self.auth_service.verify_recovery_token(str(token_hash))
+        except (AuthError, ValidationError):
+            mark_recovery_mode(self.state, False)
+            self.auth_view.render_error(
+                "This password recovery link is invalid or has expired."
+            )
             return None
 
         mark_recovery_mode(self.state, True)
@@ -180,6 +198,7 @@ class AppController:
                     action.payload["email"], action.payload["password"]
                 )
                 save_auth_session(self.state, session)
+                mark_model_loading_pending(self.state, True)
                 self.state["history_offset"] = 0
                 st.rerun()
             elif action.kind == "signup":
@@ -262,14 +281,26 @@ class AppController:
             st.rerun()
 
     def _run_analysis(self, session: AuthSession) -> None:
-        classifier_or_error = self.classifier_loader()
+        mark_model_loading_pending(self.state, True)
+        loading_panel = self.view.render_model_loading(MODEL_LOADING_MESSAGE)
+        try:
+            classifier_or_error = self.classifier_loader()
+        except Exception as exc:
+            classifier_or_error = str(exc)
+        finally:
+            mark_model_loading_pending(self.state, False)
+            loading_panel.empty()
+
         if isinstance(classifier_or_error, str):
-            self.view.render_error(
-                "Failed to load model from `./best_model/`. "
-                "Run the research notebook first to export a model.\n\n"
-                f"Error: {classifier_or_error}"
+            retry_clicked = self.view.render_model_load_error(
+                classifier_or_error
             )
+            if retry_clicked:
+                self.classifier_cache_clearer()
+                mark_model_loading_pending(self.state, True)
+                st.rerun()
             return
+
         classifier = classifier_or_error
         self.view.render_model_info(classifier.meta)
 
@@ -296,21 +327,16 @@ class AppController:
             with st.status(
                 "Analyzing job description...", expanded=True
             ) as status:
-                st.write("⏳ Reading and parsing text...")
-                time.sleep(0.5)
-                st.write("⏳ Cleaning HTML tags and URLs...")
+                st.write("Reading and parsing text...")
+                st.write("Cleaning HTML tags and URLs...")
                 cleaned_text = clean_text(text)
-                time.sleep(0.5)
-                st.write("⏳ Tokenizing input for Transformer model...")
-                time.sleep(0.7)
-                st.write("⏳ Running sequence classification...")
+                st.write("Tokenizing input for Transformer model...")
+                st.write("Running sequence classification...")
                 label, confidence = classifier.classify_text(cleaned_text)
-                time.sleep(1.0)
-                st.write("⏳ Extracting heuristics & red flags...")
+                st.write("Extracting heuristics and red flags...")
                 red_flags = check_red_flags(text)
-                time.sleep(0.5)
                 status.update(
-                    label="✅ Analysis Complete!",
+                    label="Analysis Complete!",
                     state="complete",
                     expanded=False,
                 )
