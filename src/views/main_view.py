@@ -3,6 +3,7 @@ from PIL import Image
 
 from src.models.auth_service import AuthenticatedUser
 
+
 class MainView:
     @staticmethod
     def setup_page():
@@ -18,6 +19,29 @@ class MainView:
         st.markdown(
             "Analyze job postings to detect potential scams using NLP. "
             "Paste a job description or upload a screenshot."
+        )
+
+    @staticmethod
+    def content_container():
+        return st.empty().container()
+
+    @staticmethod
+    def render_model_loading(message: str):
+        placeholder = st.empty()
+        placeholder.info(message)
+        return placeholder
+
+    @staticmethod
+    def render_model_load_error(detail: str) -> bool:
+        st.error(
+            "Failed to load the AI model.\n\n"
+            f"Error: {detail}"
+        )
+        return st.button(
+            "Retry loading model",
+            type="primary",
+            use_container_width=True,
+            key="retry_model_loading",
         )
 
     @staticmethod
