@@ -24,7 +24,9 @@ from src.models.session_store import (
     load_auth_tokens,
     mark_model_loading_pending,
     mark_recovery_mode,
+    pop_auth_notice,
     save_auth_session,
+    set_auth_notice,
 )
 from src.models.supabase_client import (
     SupabaseConfigError,
@@ -39,6 +41,9 @@ from src.views.main_view import MainView
 MODEL_LOADING_MESSAGE = (
     "Loading AI model...\n\n"
     "The first load may take several minutes. Please keep this tab open."
+)
+PASSWORD_UPDATED_MESSAGE = (
+    "Password updated. Sign in with your new password."
 )
 
 
@@ -116,6 +121,9 @@ class AppController:
 
         current_session = self._restore_session()
         if current_session is None:
+            notice = pop_auth_notice(self.state)
+            if notice is not None:
+                self.auth_view.render_success(notice)
             action = self.auth_view.render_auth_page()
             if action is not None:
                 self._handle_auth_action(action)
@@ -241,9 +249,8 @@ class AppController:
             pass
         clear_auth_state(self.state)
         self.state.pop("history_offset", None)
-        self.auth_view.render_success(
-            "Password updated. Sign in with your new password."
-        )
+        set_auth_notice(self.state, PASSWORD_UPDATED_MESSAGE)
+        st.rerun()
 
     def _logout(self) -> None:
         try:

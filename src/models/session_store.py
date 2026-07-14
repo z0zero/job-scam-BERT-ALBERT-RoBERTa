@@ -7,6 +7,7 @@ from src.models.auth_service import AuthSession, AuthenticatedUser
 AUTH_STATE_KEY = "supabase_auth"
 RECOVERY_MODE_KEY = "supabase_recovery_mode"
 MODEL_LOADING_PENDING_KEY = "model_loading_pending"
+AUTH_NOTICE_KEY = "auth_notice"
 
 _AUTH_FIELDS = (
     "user_id",
@@ -78,6 +79,24 @@ def mark_model_loading_pending(
 
 def is_model_loading_pending(state: MutableMapping[str, Any]) -> bool:
     return state.get(MODEL_LOADING_PENDING_KEY) is True
+
+
+def set_auth_notice(
+    state: MutableMapping[str, Any], message: str
+) -> None:
+    if isinstance(message, str) and message:
+        state[AUTH_NOTICE_KEY] = message
+    else:
+        state.pop(AUTH_NOTICE_KEY, None)
+
+
+def pop_auth_notice(
+    state: MutableMapping[str, Any],
+) -> str | None:
+    value = state.pop(AUTH_NOTICE_KEY, None)
+    if isinstance(value, str) and value:
+        return value
+    return None
 
 
 def clear_auth_state(state: MutableMapping[str, Any]) -> None:
