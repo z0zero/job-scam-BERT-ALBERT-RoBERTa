@@ -1,14 +1,30 @@
 import json
 import os
+import time
 from pathlib import Path
+
+os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "120")
+os.environ.setdefault("HF_HUB_ETAG_TIMEOUT", "30")
+if os.name == "nt":
+    os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS", "1")
 
 import torch
 import torch.nn.functional as F
-from huggingface_hub import hf_hub_download
+from huggingface_hub import snapshot_download
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
 )
+
+
+MODEL_SNAPSHOT_FILES = [
+    "config.json",
+    "model.safetensors",
+    "model_meta.json",
+    "tokenizer.json",
+    "tokenizer_config.json",
+]
 
 
 class ScamClassifier:
@@ -18,9 +34,6 @@ class ScamClassifier:
         # Digunakan saat deployment.
         self.model_id = os.getenv("HF_MODEL_ID", "").strip()
         self.hf_token = os.getenv("HF_TOKEN", "").strip() or None
-
-        # Jika HF_MODEL_ID tidak ada, tetap memakai folder lokal.
-        self.model_source = self.model_id or str(self.local_model_dir)
 
         self.max_len = max_len
         self.device = torch.device(
@@ -36,35 +49,55 @@ class ScamClassifier:
         if self.model is not None:
             return
 
-        auth_options = {}
+        model_source = self.local_model_dir
+        if self.model_id:
+            started_at = time.perf_counter()
+            print(
+                f"[model] snapshot download started: {self.model_id}",
+                flush=True,
+            )
+            model_source = Path(
+                snapshot_download(
+                    repo_id=self.model_id,
+                    token=self.hf_token,
+                    allow_patterns=MODEL_SNAPSHOT_FILES,
+                )
+            )
+            print(
+                "[model] snapshot download completed in "
+                f"{time.perf_counter() - started_at:.1f}s",
+                flush=True,
+            )
 
-        if self.hf_token:
-            auth_options["token"] = self.hf_token
-
+        started_at = time.perf_counter()
         self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model_source,
-            **auth_options,
+            str(model_source),
+            local_files_only=True,
+        )
+        print(
+            "[model] tokenizer loaded in "
+            f"{time.perf_counter() - started_at:.1f}s",
+            flush=True,
         )
 
+        started_at = time.perf_counter()
         self.model = AutoModelForSequenceClassification.from_pretrained(
-            self.model_source,
-            **auth_options,
+            str(model_source),
+            local_files_only=True,
+        )
+        print(
+            "[model] weights loaded in "
+            f"{time.perf_counter() - started_at:.1f}s",
+            flush=True,
         )
 
         self.model.eval()
         self.model.to(self.device)
 
-        if self.model_id:
-            meta_path = hf_hub_download(
-                repo_id=self.model_id,
-                filename="model_meta.json",
-                token=self.hf_token,
-            )
-        else:
-            meta_path = self.local_model_dir / "model_meta.json"
-
+        meta_path = model_source / "model_meta.json"
         with open(meta_path, "r", encoding="utf-8") as file:
             self.meta = json.load(file)
+        print(f"[model] classifier ready on {self.device}", flush=True)
 
     def classify_text(self, text: str) -> tuple[str, float]:
         """Classify a job posting and return its label and confidence."""
