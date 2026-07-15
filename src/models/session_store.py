@@ -8,6 +8,7 @@ AUTH_STATE_KEY = "supabase_auth"
 RECOVERY_MODE_KEY = "supabase_recovery_mode"
 MODEL_LOADING_PENDING_KEY = "model_loading_pending"
 AUTH_NOTICE_KEY = "auth_notice"
+BROWSER_SESSION_CLEAR_PENDING_KEY = "browser_session_clear_pending"
 
 _AUTH_FIELDS = (
     "user_id",
@@ -97,6 +98,21 @@ def pop_auth_notice(
     if isinstance(value, str) and value:
         return value
     return None
+
+
+def mark_browser_session_clear_pending(
+    state: MutableMapping[str, Any], enabled: bool
+) -> None:
+    if enabled is True:
+        state[BROWSER_SESSION_CLEAR_PENDING_KEY] = True
+    else:
+        state.pop(BROWSER_SESSION_CLEAR_PENDING_KEY, None)
+
+
+def is_browser_session_clear_pending(
+    state: MutableMapping[str, Any],
+) -> bool:
+    return state.get(BROWSER_SESSION_CLEAR_PENDING_KEY) is True
 
 
 def clear_auth_state(state: MutableMapping[str, Any]) -> None:

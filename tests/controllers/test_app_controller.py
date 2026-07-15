@@ -7,6 +7,7 @@ from src.controllers.app_controller import (
     MODEL_LOADING_MESSAGE,
     AppController,
 )
+from src.models.browser_session_store import BrowserSessionSnapshot
 from src.models.auth_service import (
     AuthError,
     AuthSession,
@@ -14,6 +15,7 @@ from src.models.auth_service import (
 )
 from src.models.history_repository import HistoryError, HistoryPage
 from src.models.session_store import (
+    is_browser_session_clear_pending,
     is_model_loading_pending,
     is_recovery_mode,
     load_auth_tokens,
@@ -52,6 +54,11 @@ class AppControllerTests(unittest.TestCase):
         self.history_repository = Mock()
         self.classifier_loader = Mock()
         self.classifier_cache_clearer = Mock()
+        self.browser_session_store = Mock()
+        self.browser_session_store.sync.return_value = BrowserSessionSnapshot(
+            ready=True,
+            tokens=None,
+        )
         self.query_params = (
             query_params if query_params is not None else {}
         )
@@ -63,9 +70,63 @@ class AppControllerTests(unittest.TestCase):
             history_repository=self.history_repository,
             classifier_loader=self.classifier_loader,
             classifier_cache_clearer=self.classifier_cache_clearer,
+            browser_session_store=self.browser_session_store,
             state=state if state is not None else {},
             query_params=self.query_params,
         )
+
+    def test_new_streamlit_session_restores_tokens_from_browser_storage(self):
+        state = {}
+        controller = self.build_controller(state)
+        self.browser_session_store.sync.return_value = BrowserSessionSnapshot(
+            ready=True,
+            tokens=("access-a", "refresh-a"),
+        )
+        self.auth_service.restore_session.return_value = session()
+        classifier = Mock(meta={})
+        self.classifier_loader.return_value = classifier
+
+        controller.run()
+
+        self.auth_service.restore_session.assert_called_once_with(
+            "access-a",
+            "refresh-a",
+        )
+        self.assertEqual(load_auth_tokens(state), ("access-a", "refresh-a"))
+        self.auth_view.render_auth_page.assert_not_called()
+
+    def test_existing_session_is_written_to_browser_storage(self):
+        state = {}
+        save_auth_session(state, session())
+        controller = self.build_controller(state)
+        self.auth_service.restore_session.return_value = session()
+        classifier = Mock(meta={})
+        self.classifier_loader.return_value = classifier
+
+        controller.run()
+
+        self.browser_session_store.sync.assert_called_once_with(
+            ("access-a", "refresh-a"),
+            clear=False,
+        )
+
+    @patch("src.controllers.app_controller.st")
+    def test_rotated_tokens_rerun_before_authenticated_page(
+        self,
+        streamlit,
+    ):
+        controller = self.build_controller({})
+        self.browser_session_store.sync.return_value = BrowserSessionSnapshot(
+            ready=True,
+            tokens=("old-access", "old-refresh"),
+        )
+        self.auth_service.restore_session.return_value = session()
+
+        controller.run()
+
+        streamlit.rerun.assert_called_once_with()
+        self.classifier_loader.assert_not_called()
+        self.view.render_sidebar.assert_not_called()
 
     def test_anonymous_user_never_loads_classifier(self):
         controller = self.build_controller()
@@ -74,6 +135,18 @@ class AppControllerTests(unittest.TestCase):
 
         self.view.content_container.assert_called_once_with()
         self.auth_view.render_auth_page.assert_called_once_with()
+        self.classifier_loader.assert_not_called()
+
+    def test_auth_page_waits_until_browser_session_has_loaded(self):
+        controller = self.build_controller()
+        self.browser_session_store.sync.return_value = BrowserSessionSnapshot(
+            ready=False,
+            tokens=None,
+        )
+
+        controller.run()
+
+        self.auth_view.render_auth_page.assert_not_called()
         self.classifier_loader.assert_not_called()
 
     def test_anonymous_run_renders_pending_notice_before_login(self):
@@ -429,6 +502,7 @@ class AppControllerTests(unittest.TestCase):
 
         self.assertIsNone(load_auth_tokens(state))
         self.assertNotIn("history_offset", state)
+        self.assertTrue(is_browser_session_clear_pending(state))
         self.classifier_loader.assert_not_called()
         streamlit.rerun.assert_called_once_with()
 

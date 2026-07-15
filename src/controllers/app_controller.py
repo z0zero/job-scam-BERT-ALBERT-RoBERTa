@@ -9,6 +9,7 @@ from src.models.auth_service import (
     AuthSession,
     ValidationError,
 )
+from src.models.browser_session_store import BrowserSessionStore
 from src.models.classifier import ScamClassifier
 from src.models.heuristics import check_red_flags
 from src.models.history_repository import (
@@ -20,9 +21,11 @@ from src.models.ocr_engine import extract_text_from_image
 from src.models.preprocessor import clean_text
 from src.models.session_store import (
     clear_auth_state,
+    is_browser_session_clear_pending,
     is_recovery_mode,
     load_auth_tokens,
     mark_model_loading_pending,
+    mark_browser_session_clear_pending,
     mark_recovery_mode,
     pop_auth_notice,
     save_auth_session,
@@ -67,6 +70,7 @@ class AppController:
         history_repository: HistoryRepository | None = None,
         classifier_loader: Callable[[], Any] = get_classifier,
         classifier_cache_clearer: Callable[[], None] | None = None,
+        browser_session_store: BrowserSessionStore | None = None,
         state: MutableMapping[str, Any] | None = None,
         query_params: MutableMapping[str, Any] | None = None,
     ):
@@ -81,6 +85,11 @@ class AppController:
         self.classifier_cache_clearer = (
             classifier_cache_clearer or get_classifier.clear
         )
+        self.browser_session_store = (
+            browser_session_store or BrowserSessionStore()
+        )
+        self.browser_tokens: tuple[str, str] | None = None
+        self.browser_tokens_rotated = False
         self.config_error: str | None = None
         self.view.setup_page()
 
@@ -119,7 +128,13 @@ class AppController:
             self._run_recovery_form()
             return
 
+        if not self._sync_browser_session():
+            return
+
         current_session = self._restore_session()
+        if self.browser_tokens_rotated:
+            st.rerun()
+            return
         if current_session is None:
             notice = pop_auth_notice(self.state)
             if notice is not None:
@@ -138,6 +153,21 @@ class AppController:
             self._run_history(current_session)
         else:
             self._run_analysis(current_session)
+
+    def _sync_browser_session(self) -> bool:
+        clear_pending = is_browser_session_clear_pending(self.state)
+        snapshot = self.browser_session_store.sync(
+            load_auth_tokens(self.state),
+            clear=clear_pending,
+        )
+        if not snapshot.ready:
+            return False
+        if clear_pending:
+            mark_browser_session_clear_pending(self.state, False)
+            self.browser_tokens = None
+        else:
+            self.browser_tokens = snapshot.tokens
+        return True
 
     def _consume_recovery_callback(self) -> AuthSession | None:
         """Consume only the server-readable password-recovery callback."""
@@ -169,15 +199,20 @@ class AppController:
         return session
 
     def _restore_session(self) -> AuthSession | None:
-        tokens = load_auth_tokens(self.state)
+        tokens = load_auth_tokens(self.state) or self.browser_tokens
         if tokens is None:
             return None
         try:
             session = self.auth_service.restore_session(*tokens)
         except (AuthError, ValidationError):
             clear_auth_state(self.state)
+            mark_browser_session_clear_pending(self.state, True)
             return None
         save_auth_session(self.state, session)
+        self.browser_tokens_rotated = tokens != (
+            session.access_token,
+            session.refresh_token,
+        )
         return session
 
     def _restore_recovery_session(self) -> bool:
@@ -206,6 +241,7 @@ class AppController:
                     action.payload["email"], action.payload["password"]
                 )
                 save_auth_session(self.state, session)
+                mark_browser_session_clear_pending(self.state, False)
                 mark_model_loading_pending(self.state, True)
                 self.state["history_offset"] = 0
                 st.rerun()
@@ -248,6 +284,7 @@ class AppController:
         except Exception:
             pass
         clear_auth_state(self.state)
+        mark_browser_session_clear_pending(self.state, True)
         self.state.pop("history_offset", None)
         set_auth_notice(self.state, PASSWORD_UPDATED_MESSAGE)
         st.rerun()
@@ -259,6 +296,7 @@ class AppController:
             pass
         finally:
             clear_auth_state(self.state)
+            mark_browser_session_clear_pending(self.state, True)
             self.state.pop("history_offset", None)
         st.rerun()
 
